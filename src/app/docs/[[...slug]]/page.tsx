@@ -64,18 +64,22 @@ export async function generateMetadata(props: {
   const page = source.getPage(params.slug);
   if (!page) notFound();
 
-  const baseUrl = 'https://ecf.mseller.app';
+  // Docs are served from docs.ecf.mseller.app; ecf.mseller.app/docs only
+  // redirects here, so it must not be the canonical host.
+  const baseUrl = 'https://docs.ecf.mseller.app';
   const slug = params.slug?.join('/') ?? '';
-  const pageUrl = `${baseUrl}/docs/${slug}`;
+  const pageUrl = slug ? `${baseUrl}/docs/${slug}` : `${baseUrl}/docs`;
+
+  const title = page.data.seoTitle ?? page.data.title;
 
   return {
-    title: page.data.title,
+    title,
     description: page.data.description,
     alternates: {
       canonical: pageUrl,
     },
     openGraph: {
-      title: page.data.title,
+      title,
       description: page.data.description,
       url: pageUrl,
       type: 'article',

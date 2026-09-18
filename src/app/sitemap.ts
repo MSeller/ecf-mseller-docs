@@ -4,7 +4,7 @@ import { MetadataRoute } from "next";
 export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://ecf.mseller.app";
+  const baseUrl = "https://docs.ecf.mseller.app";
 
   // Get all documentation pages
   const pages = source.getPages();
@@ -16,21 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: page.url === "/docs" ? 1.0 : page.url.includes("certification") ? 0.95 : 0.8,
   }));
 
-  // Add main pages
-  const mainPages: MetadataRoute.Sitemap = [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/docs`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1.0,
-    },
-  ];
-
-  return [...mainPages, ...docUrls];
+  // The docs index (/docs) is already one of the pages; "/" is only a rewrite
+  // of it, so it is not listed separately.
+  return docUrls;
 }

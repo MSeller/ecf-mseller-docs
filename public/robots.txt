@@ -6,7 +6,7 @@ Allow: /
 Disallow: /api/
 
 # Sitemap location
-Sitemap: https://ecf.mseller.app/sitemap.xml
+Sitemap: https://docs.ecf.mseller.app/sitemap.xml
 
 # LLMs and AI agents
 # See https://llmstxt.org

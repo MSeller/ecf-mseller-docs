@@ -13,11 +13,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ecf.mseller.app"),
+  metadataBase: new URL("https://docs.ecf.mseller.app"),
   title: {
     default:
       "eCF MSeller - Facturación Electrónica República Dominicana | DGII",
-    template: "%s | eCF MSeller - Facturación Electrónica DGII",
+    // Keep the suffix short: Google truncates titles at ~60 characters, so
+    // page titles carry their own keywords and only the brand is appended.
+    template: "%s | eCF MSeller",
   },
   description:
     "Plataforma de integración para Facturación Electrónica (eCF) en República Dominicana. Solución completa para Comprobantes Fiscales Electrónicos (e-CF) certificada por DGII. Implementa facturación electrónica en tu negocio de forma sencilla y segura.",
@@ -58,7 +60,7 @@ export const metadata: Metadata = {
     title: "eCF MSeller - Facturación Electrónica República Dominicana | DGII",
     description:
       "Plataforma de integración para Facturación Electrónica (eCF) en República Dominicana. Solución completa para Comprobantes Fiscales Electrónicos certificada por DGII.",
-    url: "https://ecf.mseller.app",
+    url: "https://docs.ecf.mseller.app",
     siteName: "eCF MSeller",
     locale: "es_DO",
     type: "website",
@@ -89,9 +91,6 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  alternates: {
-    canonical: "https://ecf.mseller.app",
-  },
   category: "technology",
 };
 
@@ -102,7 +101,6 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="es" className={inter.className} suppressHydrationWarning>
       <head>
-        <link rel="canonical" href="https://ecf.mseller.app" />
         <meta name="geo.region" content="DO" />
         <meta name="geo.placename" content="República Dominicana" />
         <meta name="language" content="Spanish" />
