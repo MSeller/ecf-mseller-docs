@@ -49,7 +49,7 @@ export function generateSoftwareApplicationSchema() {
 }
 
 export function generateHowToSchema() {
-  const baseUrl = "https://ecf.mseller.app";
+  const baseUrl = "https://docs.ecf.mseller.app";
 
   return {
     "@context": "https://schema.org",
