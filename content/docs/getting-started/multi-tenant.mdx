@@ -60,9 +60,15 @@ Marca **"Confirmo que este negocio me autorizó a crear y gestionar su cuenta de
 </Step>
 
 <Step>
+### Copia sus credenciales
+
+Al crearla verás el **correo** y una **contraseña generada** para esa cuenta, con botones para copiarlos. Guárdalos en tu sistema, cifrados: **la contraseña se muestra una sola vez**. Con ellos tu integración obtiene el [token de la API](/docs/integration/authentication) de ese cliente.
+</Step>
+
+<Step>
 ### El dueño recibe su bienvenida
 
-MSeller envía un correo de bienvenida al negocio avisando que **tú** creaste su cuenta. Para entrar al portal, el dueño va a [ecf.mseller.app/forgot-password](https://ecf.mseller.app/forgot-password), elige **Olvidé mi contraseña** con ese correo y crea su contraseña.
+MSeller envía un correo de bienvenida al negocio avisando que **tú** creaste su cuenta y que tienes su contraseña para la integración. Si el dueño quiere entrar al portal con su propia contraseña, usa **Olvidé mi contraseña** en [ecf.mseller.app/forgot-password](https://ecf.mseller.app/forgot-password). Eso **reemplaza** la contraseña que tú guardaste, así que deberá avisarte para que la actualices en tu sistema.
 </Step>
 </Steps>
 
@@ -100,7 +106,17 @@ Pulsa **Actualizar** en tu tabla: la fila del cliente ahora muestra **Gestionar*
 
 ## 3. Gestiona el certificado y las API Keys de un cliente
 
-En la tabla de tu Dashboard, pulsa **Gestionar** en la fila del cliente. Verás dos tarjetas:
+En la tabla de tu Dashboard, pulsa **Gestionar** en la fila del cliente. Verás estas tarjetas:
+
+### Acceso para la integración
+
+Solo en las subcuentas **que tú creaste**. Muestra el usuario de la cuenta y el botón **Generar nueva contraseña**, útil si perdiste la contraseña o necesitas cambiarla:
+
+- La contraseña actual **deja de funcionar de inmediato** y se **cierran las sesiones abiertas** de esa cuenta.
+- La nueva se muestra **una sola vez**, con botón para copiarla. Actualízala en tu integración.
+- El dueño recibe un **correo** avisando del cambio.
+
+En las cuentas cuyo dueño **te autorizó** desde su portal no aparece: su contraseña es solo suya.
 
 ### Certificado digital
 
@@ -122,7 +138,8 @@ Por seguridad del cliente:
 
 - **No puedes descargar** el certificado de un cliente, solo instalarlo o reemplazarlo.
 - **No puedes ver** el valor de API Keys que ya existían; solo el de las que creas tú, y solo al crearlas.
-- **Cada cambio que haces** (certificado nuevo, API Key creada o revocada) **se le notifica al dueño por correo**.
+- **No puedes cambiar la contraseña** de una cuenta cuyo dueño te autorizó desde su portal; solo la de las subcuentas que creaste.
+- **Cada cambio que haces** (certificado nuevo, API Key creada o revocada, contraseña nueva) **se le notifica al dueño por correo**.
 - El dueño puede **quitarte el acceso** cuando quiera desde **Mi cuenta → Acceso de tu proveedor → Quitar acceso**. Las API Keys que ya creaste siguen funcionando hasta que él las revoque.
 
 ## 4. Certifica a cada cliente
@@ -133,7 +150,7 @@ Cada cliente (cada RNC) se [certifica ante la DGII](/docs/certification/process)
 
 La API se autentica **como el cliente** en cada llamada ([ver autenticación](/docs/integration/authentication)). Guarda por cada tenant, **cifrado**:
 
-- **Email y contraseña** de su cuenta MSeller. Si creaste la cuenta desde tu panel, la contraseña se define con **Olvidé mi contraseña** usando el correo de la cuenta.
+- **Email y contraseña** de su cuenta MSeller. Si creaste la cuenta desde tu panel, es la contraseña que te mostramos **una sola vez** al crearla. Si la pierdes, genera otra en **Gestionar → Generar nueva contraseña**.
 - Su **API Key** de cada entorno (la creas desde **Gestionar**).
 - El **entorno activo**: `TesteCF`, `CerteCF` o `eCF`.
 
