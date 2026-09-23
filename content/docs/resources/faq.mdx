@@ -63,6 +63,12 @@ Puedes obtener un certificado digital a través de la [Cámara de Comercio de Sa
 
 Lo único indispensable es un **certificado digital válido (`.p12`)** del negocio, que se compra en la Cámara de Comercio de Santo Domingo. Si tu empresa (por ejemplo, un proveedor de software que integra a varios clientes) todavía no tiene uno, **puedes usar el certificado de cualquiera de tus clientes** para empezar la integración y las pruebas mientras obtienes el tuyo.
 
+### ¿El ambiente de pruebas (TesteCF) necesita certificado? ¿Tienen uno de prueba?
+
+Sí, **TesteCF también requiere un certificado digital válido (`.p12`)**. No ofrecemos certificados de prueba, y un certificado autogenerado no sirve. Si envías un documento sin certificado cargado, el API responde `412` con el código `CERTIFICATE_NOT_CONFIGURED`.
+
+Si tu empresa todavía no tiene certificado, **usa el de cualquiera de tus clientes** para empezar las pruebas mientras cada cliente tramita el suyo. Cárgalo en [ecf.mseller.app/certificate/add](https://ecf.mseller.app/certificate/add).
+
 ### ¿Cuánto tarda un cliente en emitir en producción desde que tiene su certificado?
 
 Con el `.p12` en mano, el [proceso de certificación](/docs/certification/process) dentro de MSeller toma unos **10 minutos**. Después hay que esperar la aprobación de la DGII, que puede tomar desde varios minutos, según el estado del negocio ante la DGII.

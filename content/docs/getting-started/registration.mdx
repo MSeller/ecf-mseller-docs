@@ -47,6 +47,8 @@ Es indispensable cargar el certificado digital que será utilizado para firmar l
 1. Navega a [https://ecf.mseller.app/certificate/add](https://ecf.mseller.app/certificate/add)
 2. Sigue las instrucciones para cargar tu certificado digital
 
+> **También en TesteCF**: todos los ambientes, **incluido el de pruebas (TesteCF)**, requieren un certificado digital válido (`.p12`) cargado en la cuenta. No ofrecemos certificados de prueba, y un certificado autogenerado no funciona. Si envías un documento sin certificado, el API responde **`412` con el código `CERTIFICATE_NOT_CONFIGURED`**. Si aún no tienes certificado propio, puedes usar el de **cualquiera de tus clientes** para empezar la integración mientras tramitas el tuyo.
+
 Si aún no cuentas con un certificado digital, puedes obtenerlo en línea a través de la [Cámara de Comercio de Santo Domingo](https://www.camarasantodomingo.do/solicitudes/FormularioWeb/?AspxAutoDetectCookieSupport=1).
 
 ## Requisitos previos para obtener el certificado
