@@ -60,9 +60,15 @@ Marca **"Confirmo que este negocio me autorizó a crear y gestionar su cuenta de
 </Step>
 
 <Step>
+### Copia sus credenciales
+
+Al crearla verás el **correo** y una **contraseña generada** para esa cuenta, con botones para copiarlos. Guárdalos en tu sistema, cifrados: **la contraseña se muestra una sola vez**. Con ellos tu integración obtiene el [token de la API](/docs/integration/authentication) de ese cliente.
+</Step>
+
+<Step>
 ### El dueño recibe su bienvenida
 
-MSeller envía un correo de bienvenida al negocio avisando que **tú** creaste su cuenta. Para entrar al portal, el dueño va a [ecf.mseller.app/forgot-password](https://ecf.mseller.app/forgot-password), elige **Olvidé mi contraseña** con ese correo y crea su contraseña.
+MSeller envía un correo de bienvenida al negocio avisando que **tú** creaste su cuenta y que tienes su contraseña para la integración. Si el dueño quiere entrar al portal con su propia contraseña, usa **Olvidé mi contraseña** en [ecf.mseller.app/forgot-password](https://ecf.mseller.app/forgot-password). Eso **reemplaza** la contraseña que tú guardaste, así que deberá avisarte para que la actualices en tu sistema.
 </Step>
 </Steps>
 
@@ -133,7 +139,7 @@ Cada cliente (cada RNC) se [certifica ante la DGII](/docs/certification/process)
 
 La API se autentica **como el cliente** en cada llamada ([ver autenticación](/docs/integration/authentication)). Guarda por cada tenant, **cifrado**:
 
-- **Email y contraseña** de su cuenta MSeller. Si creaste la cuenta desde tu panel, la contraseña se define con **Olvidé mi contraseña** usando el correo de la cuenta.
+- **Email y contraseña** de su cuenta MSeller. Si creaste la cuenta desde tu panel, es la contraseña que te mostramos **una sola vez** al crearla.
 - Su **API Key** de cada entorno (la creas desde **Gestionar**).
 - El **entorno activo**: `TesteCF`, `CerteCF` o `eCF`.
 
