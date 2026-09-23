@@ -1,130 +1,104 @@
 ---
 title: Preguntas Frecuentes
-description: Respuestas a las preguntas más comunes sobre MSeller ECF
+seoTitle: "Preguntas Frecuentes sobre Facturación Electrónica e-CF — MSeller ECF"
+description: Respuestas cortas a las preguntas más comunes sobre MSeller ECF, agrupadas por tema. Cada una enlaza a la página con el detalle.
 ---
 
-# Preguntas Frecuentes (FAQ)
+## Empezar
 
-## Generales
+### ¿Cómo empiezo?
 
-### ¿Qué es la facturación electrónica?
+Sigue la guía [Cómo empezar](/docs): crea tu cuenta, sube tu certificado `.p12`, crea tu API Key, integra tu software y certifica ante la DGII.
 
-La facturación electrónica es un sistema que permite la emisión, recepción y almacenamiento de facturas en formato digital, reemplazando el uso de facturas en papel físico. En República Dominicana, este sistema está regulado por la Dirección General de Impuestos Internos (DGII).
+### ¿Qué necesito sí o sí?
 
-### ¿Es obligatorio usar facturación electrónica?
+Un **certificado digital `.p12`** válido del negocio que emite. Se compra en la [Cámara de Comercio de Santo Domingo](https://digi.camarasantodomingo.do/). Ver [Sube tu certificado](/docs/getting-started/certificado).
 
-Según las regulaciones de la DGII, la facturación electrónica será obligatoria para todos los contribuyentes de manera gradual. Es recomendable iniciar el proceso de adaptación lo antes posible.
+### Soy una empresa de software y aún no tengo certificado. ¿Cómo pruebo?
 
-### ¿Qué es MSeller ECF?
-
-MSeller ECF es una plataforma que facilita la integración de la facturación electrónica en tu negocio o sistema, abstrayendo la complejidad técnica y regulatoria del proceso.
-
-### ¿MSeller ECF está autorizado por la DGII como proveedor?
-
-Sí. **IT SOLUCLICK SRL** (RNC **130862346**), la empresa detrás de MSeller ECF, aparece en el [listado de proveedores de servicios de facturación electrónica autorizados de la DGII](https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Paginas/Proveedores-servicios-FE-autorizados.aspx) con fecha de certificación **19/09/2025**. Puedes verificarlo buscando "IT SOLUCLICK SRL" en ese listado.
-
-## Técnicas
-
-### ¿Qué tecnología necesito para integrarme con MSeller ECF?
-
-Necesitas un sistema capaz de generar documentos XML según las especificaciones de la DGII y realizar solicitudes HTTP a nuestra API REST. Puedes utilizar cualquier lenguaje de programación que soporte estas capacidades.
-
-### ¿Puedo integrar MSeller ECF con mi sistema actual?
-
-Sí, la plataforma está diseñada para ser integrada con cualquier sistema existente, ya sea un ERP comercial, un software a medida o una aplicación web.
-
-### ¿MSeller ECF soporta aplicaciones multi-tenant (múltiples clientes)?
-
-Sí, MSeller ECF puede manejar múltiples clientes o multi-tenants para tu aplicación. Crea una cuenta principal de tipo **Proveedor** para tu empresa (que agrupa a tus clientes, incluso si no vas a emitir e-CF) y luego una cuenta para cada cliente seleccionando **esta cuenta es para mi cliente** en el paso 3 del registro. Cada cliente debe tener su propia cuenta, sus propias credenciales (email/password), su propia API Key y su propio certificado digital, completamente aislados entre sí. Consulta la guía completa en [Multi-tenant (Múltiples Clientes)](/docs/getting-started/multi-tenant).
-
-### ¿Puede la cuenta Proveedor operar sobre las cuentas de sus clientes con una sola credencial?
-
-No. Cada cliente tiene su propio email, contraseña, API Key y certificado digital, y cada solicitud se autentica con las credenciales de ese cliente. Así ningún cliente puede ver ni firmar documentos de otro. En tu sistema debes guardar, **cifradas**, las credenciales de cada cliente junto con su entorno (TesteCF, CerteCF o eCF).
-
-### ¿Tienen webhooks para notificar el estado de los comprobantes?
-
-Por ahora **no ofrecemos webhooks**; el estado se obtiene consultando el API. Para consumir menos requests:
-
-- Consulta el estado **por lote** ([consulta en batch](/docs/integration/document-queries#consulta-en-batch)): muchos documentos en una sola llamada.
-- Usa la **consulta individual** solo cuando necesites el resultado de un documento puntual, y deja de consultarlo cuando llegue a un estado final (Aceptado o Rechazado).
-- **Reutiliza el token** de acceso en vez de autenticarte en cada llamada.
-
-### ¿Qué pasa si mi sistema ya genera facturas en otro formato?
-
-Solo necesitarás implementar la transformación de tu formato actual al formato XML requerido por la DGII. Nuestra plataforma se encarga del resto del proceso.
-
-## Certificación y Cumplimiento
-
-### ¿Cómo obtengo un certificado digital?
-
-Puedes obtener un certificado digital a través de la [Cámara de Comercio de Santo Domingo](https://www.camarasantodomingo.do/solicitudes/FormularioWeb/?AspxAutoDetectCookieSupport=1).
-
-### ¿Qué necesito para empezar?
-
-Lo único indispensable es un **certificado digital válido (`.p12`)** del negocio, que se compra en la Cámara de Comercio de Santo Domingo. Si tu empresa (por ejemplo, un proveedor de software que integra a varios clientes) todavía no tiene uno, **puedes usar el certificado de cualquiera de tus clientes** para empezar la integración y las pruebas mientras obtienes el tuyo.
+Usa el certificado de **uno de tus clientes**. Crea una cuenta con el RNC de ese cliente y úsala para desarrollar y probar mientras tramitas el tuyo.
 
 ### ¿El ambiente de pruebas (TesteCF) necesita certificado? ¿Tienen uno de prueba?
 
-Sí, **TesteCF también requiere un certificado digital válido (`.p12`)**. No ofrecemos certificados de prueba, y un certificado autogenerado no sirve. Si envías un documento sin certificado cargado, el API responde `412` con el código `CERTIFICATE_NOT_CONFIGURED`.
+Sí, **TesteCF también requiere un `.p12` válido**. No ofrecemos certificados de prueba y uno autogenerado no sirve. Sin certificado, el API responde `412 CERTIFICATE_NOT_CONFIGURED`.
 
-Si tu empresa todavía no tiene certificado, **usa el de cualquiera de tus clientes** para empezar las pruebas mientras cada cliente tramita el suyo. Cárgalo en [ecf.mseller.app/certificate/add](https://ecf.mseller.app/certificate/add).
+### ¿Cuánto tarda un cliente en emitir en producción?
 
-### ¿Cuánto tarda un cliente en emitir en producción desde que tiene su certificado?
+Con el `.p12` en mano, la [certificación](/docs/certification/process) toma unos **10 minutos** de tu parte. Después hay que esperar la aprobación de la DGII, que depende del estado del negocio ante la DGII.
 
-Con el `.p12` en mano, el [proceso de certificación](/docs/certification/process) dentro de MSeller toma unos **10 minutos**. Después hay que esperar la aprobación de la DGII, que puede tomar desde varios minutos, según el estado del negocio ante la DGII.
+## Varios clientes (multi-tenant)
 
-### ¿Cuáles son los requisitos para certificarme como emisor electrónico?
+### ¿Puedo manejar todos mis clientes desde una sola cuenta?
 
-La DGII establece varios requisitos técnicos y administrativos. Puedes consultar el documento oficial [Proceso de Certificación para ser Emisor Electrónico](https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentaciones%20Proceso%20de%20Certificaci%C3%B3n%20FE/Proceso%20de%20Certificacio%CC%81n%20para%20ser%20Emisor%20Electro%CC%81nico.pdf).
+**Hoy no.** Cada cliente necesita **su propia cuenta**, con su email/contraseña, su API Key y su certificado. Tu cuenta **Proveedor** agrupa esas cuentas y te muestra cuánto emite cada una. Ver [Varios clientes (multi-tenant)](/docs/getting-started/multi-tenant).
 
-### ¿MSeller ECF cumple con todos los requisitos de la DGII?
+### ¿La cuenta Proveedor puede operar sobre sus clientes con una sola credencial?
 
-Sí, nuestra plataforma está diseñada para cumplir con todos los requisitos técnicos y regulatorios establecidos por la DGII para la facturación electrónica.
+No. Cada llamada se autentica con las credenciales **del cliente**. Guarda en tu sistema, **cifradas**, las credenciales, la API Key y el entorno de cada cliente.
 
-## Planes y Soporte
+### ¿Cada cliente se certifica por separado?
 
-### ¿Qué planes ofrecen?
+Sí. Cada cliente (cada RNC) se certifica ante la DGII **una vez**, desde su propia cuenta.
 
-Contamos con **dos productos** (Developer/Community y Partner Comercial) y tres planes técnicos:
+## Planes y pagos
 
-- **Gratis**: 1,000 requests/mes, gratuito de forma indefinida. Dirigido únicamente a microempresas y pequeñas empresas clasificadas por la DGII; ideal para desarrollo, pruebas y clientes pequeños. Es el tramo para ese volumen, no un saldo de requests de regalo: al superar el límite, la cuenta pasa al plan que le corresponda.
-- **Estándar**: 20,000 requests/mes. Los clientes Developer/Community con **más de 2 cuentas activas de pago** reciben entre **10% y 20% de descuento** sobre el costo de esas cuentas; el porcentaje se acuerda según el volumen gestionado.
-- **Empresarial**: 100,000 requests/mes, asociado al producto Partner Comercial (con contrato, a partir de **más de 10 clientes de pago**, con un descuento de **25% a 30%** según la cantidad de clientes).
+### ¿Cuánto cuesta?
 
-Consulta el detalle en [Planes y Modelo Comercial](/docs/getting-started/planes).
+Hay un plan **Gratis** (hasta 250 comprobantes/mes, solo para micro y pequeñas empresas clasificadas por la DGII) y planes pagos con **precio fijo mensual** por tramo de comprobantes. Ver [Planes y pagos](/docs/getting-started/planes).
 
-### ¿Cómo se cuenta mi consumo, por request o por comprobante?
+### ¿Cómo pago?
 
-El consumo se mide **por request** (cada llamada al API), **no por comprobante emitido**. Es importante saber que **consultar el estado de un NCF también consume un request**: emitir un e-CF y luego consultar su estado son dos requests. Con un uso cauteloso, 1,000 requests equivalen a **~250 comprobantes/mes**. Revisa los [consejos para aprovechar tu cuota](/docs/getting-started/planes#cómo-aprovechar-tu-cuota).
+Con tarjeta, desde **Configuración → Facturación** en el portal. El cobro lo procesa Stripe. Ver [Cómo pagar](/docs/getting-started/planes#cómo-pagar).
 
-> Si en otro lugar ves "250 comprobantes gratis al mes" y aquí "1,000 requests", ambas cifras se refieren a lo mismo: 1,000 requests alcanzan para unos 250 comprobantes, porque cada comprobante usa entre 3 y 4 requests. La medida oficial es el request.
+### Tengo varios clientes. ¿Quién paga?
 
-### Con una cuenta Proveedor, ¿quién paga cuando un cliente supera el plan gratis?
+**Cada cliente tiene su propio plan**; el consumo se mide por cuenta. Con **más de 2 cuentas de pago** recibes un descuento de **10% a 20%**, y con **más de 10 clientes de pago** puedes firmar como **Partner Comercial** (25% a 30%). Ver [¿Quién paga?](/docs/getting-started/planes#quién-paga-en-un-modelo-multi-tenant).
 
-Cada cliente tiene **su propia cuenta y su propio plan**; el consumo se evalúa por cuenta de cliente. Hay dos modelos comerciales:
+### ¿Me dan comprobante fiscal (NCF) por el servicio?
 
-- **Developer / Community**: sin contrato. Con más de 2 cuentas activas de pago, reciben entre **10% y 20%** de descuento.
-- **Partner Comercial**: con contrato, a partir de **más de 10 clientes de pago**. Incluye SLA, soporte dedicado y un descuento de **25% a 30%** según la cantidad de clientes.
+El pago mensual en línea no incluye NCF. Si lo necesitas, la contratación es **anual** con **ITBIS**. Solicítalo por [soporte](https://ecf.mseller.app/support).
 
-Consulta [Planes y Modelo Comercial](/docs/getting-started/planes).
+### ¿Se cobra por comprobante o por request?
 
-### ¿Ofrecen soporte técnico?
+Los planes se venden por **comprobantes**, pero el API cuenta **requests**: cada llamada, incluidas las **consultas de estado**. Cada plan incluye unos 4 requests por comprobante; por eso el plan Gratis tiene 1,000 requests para 250 comprobantes. Ver [cómo aprovechar tu cuota](/docs/getting-started/planes#cómo-aprovechar-tu-cuota).
 
-El nivel de soporte depende del producto:
+## Técnicas
 
-- **Developer / Community**: soporte best-effort a través de la comunidad en Discord. El desarrollador da soporte a su propio cliente final.
-- **Partner Comercial**: SLA contractual con tiempos de respuesta, L2 dedicado, escalamiento crítico y canal directo (a partir de más de 10 clientes de pago).
+### ¿Envío XML o JSON?
 
-### ¿Pueden ayudarme con la implementación?
+**JSON.** Usa la misma estructura y los mismos nombres de campo que el XML de la DGII. MSeller lo convierte a XML, lo firma y lo envía. Ver [Formato JSON](/docs/integration/document-format).
 
-Ofrecemos servicios profesionales de implementación para empresas que necesiten asistencia en la integración de la plataforma con sus sistemas existentes.
+### ¿Qué lenguaje necesito?
 
-## Seguridad y Privacidad
+Cualquiera que pueda hacer solicitudes HTTP con JSON. Hay ejemplos en cURL, JavaScript, C# y PHP.
 
-### ¿Cómo garantizan la seguridad de mis datos?
+### ¿Tienen webhooks para notificar el estado?
 
-Utilizamos cifrado de extremo a extremo, autenticación de dos factores, y seguimos las mejores prácticas de seguridad informática para proteger tus datos y documentos.
+**Todavía no.** El estado se consulta con el API. Usa la [consulta en batch](/docs/integration/document-queries#consulta-en-batch) para varios documentos y deja de consultar cuando el estado sea final.
 
-### ¿Quién puede acceder a mis facturas electrónicas?
+### ¿Puedo validar un documento sin enviarlo a la DGII?
 
-Solo tu empresa, los receptores de tus facturas, y la DGII (cuando sea requerido por regulación) pueden acceder a tus facturas electrónicas.
+Sí, con `?validate=true` en el envío. No se envía a la DGII ni consume secuencia. Ver [parámetro de validación](/docs/integration/documents#parámetro-de-validación).
+
+### ¿Necesito guardar los XML?
+
+No. MSeller guarda el XML firmado por **10 años**, como exige la DGII.
+
+## Sobre MSeller
+
+### ¿MSeller ECF está autorizado por la DGII como proveedor?
+
+Sí. **IT SOLUCLICK SRL** (RNC **130862346**), la empresa detrás de MSeller ECF, aparece en el [listado de proveedores de servicios de facturación electrónica autorizados de la DGII](https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Paginas/Proveedores-servicios-FE-autorizados.aspx) con fecha de certificación **19/09/2025**.
+
+### ¿Qué soporte ofrecen?
+
+- **Developer / Community**: comunidad en [Discord](https://discord.gg/7xnNByfWTG), best-effort. El desarrollador da soporte a su cliente final.
+- **Partner Comercial**: SLA contractual, L2 dedicado y canal directo.
+
+### ¿Quién puede ver mis facturas?
+
+Solo tu empresa, los receptores de tus facturas y la DGII cuando la regulación lo requiere. Cada cuenta está aislada de las demás.
+
+### ¿Es obligatoria la facturación electrónica?
+
+La DGII la está haciendo obligatoria de forma gradual para todos los contribuyentes. Conviene empezar cuanto antes.

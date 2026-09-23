@@ -1,0 +1,28 @@
+---
+title: "2. Sube tu certificado (.p12)"
+seoTitle: "Certificado Digital .p12 para e-CF: Cómo Obtenerlo y Cargarlo"
+description: "Paso 2: obtén el certificado digital .p12 de tu negocio y cárgalo en MSeller ECF. Es obligatorio en todos los entornos, incluido TesteCF."
+---
+
+El certificado digital (archivo **`.p12`** + su contraseña) es la firma electrónica del negocio. MSeller lo usa para firmar cada e-CF antes de enviarlo a la DGII.
+
+<Callout type="warn" title="Es obligatorio en todos los entornos, incluido TesteCF">
+  No ofrecemos certificados de prueba y un certificado autogenerado no funciona. Si envías un documento sin certificado cargado, el API responde **`412 CERTIFICATE_NOT_CONFIGURED`**.
+</Callout>
+
+## ¿No tienes certificado?
+
+- **Cómpralo** en la [Cámara de Comercio de Santo Domingo](https://digi.camarasantodomingo.do/). El negocio debe cumplir los [requisitos de la DGII](https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentaciones%20Proceso%20de%20Certificaci%C3%B3n%20FE/Proceso%20de%20Certificacio%CC%81n%20para%20ser%20Emisor%20Electro%CC%81nico.pdf).
+- **¿Eres una empresa de software?** Puedes empezar con el certificado de **uno de tus clientes**. Crea la cuenta con el RNC de ese cliente y úsala para desarrollar y probar mientras tramitas el tuyo.
+
+## Cárgalo en el portal
+
+1. Entra a [ecf.mseller.app/certificate/add](https://ecf.mseller.app/certificate/add).
+2. Sube el archivo `.p12` y escribe su contraseña.
+3. Verás el **RNC** del certificado y su **fecha de expiración**. Anota esa fecha: tendrás que renovarlo antes.
+
+El certificado queda guardado en la cuenta y sirve para los tres entornos (TesteCF, CerteCF y eCF).
+
+## Siguiente paso
+
+[Crea tu API Key](/docs/getting-started/api-key).

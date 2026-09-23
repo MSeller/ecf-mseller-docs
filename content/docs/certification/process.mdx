@@ -1,18 +1,32 @@
 ---
-title: "Portal de Certificación DGII (CerteCF)"
+title: "5. Certifica ante la DGII"
 seoTitle: "Portal de Certificación DGII (CerteCF): Guía Paso a Paso"
 description: "Cómo usar el portal de certificación de facturación electrónica de la DGII (CerteCF): postulación, pruebas e-CF, PDFs y declaración jurada, paso a paso."
 ---
 
-# Proceso de Certificación DGII (CerteCF)
+Antes de emitir en producción, la DGII debe aprobar a cada negocio como **emisor electrónico**. MSeller incluye un asistente que hace las pruebas por ti: en lugar de los 15 pasos del proceso tradicional, completas unos pocos pasos guiados.
 
-El proceso de certificación es un paso **obligatorio** ante la DGII para que tu empresa pueda emitir comprobantes fiscales electrónicos (e-CF) en producción. MSeller ECF incluye un asistente interactivo que te guía paso a paso a través de todo el proceso directamente desde el panel de administración.
+<Callout title="En resumen">
+  - **Qué necesitas**: la cuenta activa y el certificado `.p12` cargado ([paso 2](/docs/getting-started/certificado)).
+  - **Dónde**: el asistente del portal, en [ecf.mseller.app/dgii-certification](https://ecf.mseller.app/dgii-certification), y el [portal de certificación de la DGII](https://ecf.dgii.gov.do/certecf/portalcertificacion).
+  - **Cuánto tarda**: unos **10 minutos** de tu parte. Luego esperas la aprobación de la DGII, que depende del estado del negocio ante la DGII.
+  - **¿Tienes varios clientes?** Cada cliente (cada RNC) se certifica **una vez**, desde su propia cuenta.
+</Callout>
 
-> **¿Buscas el portal de certificación de la DGII?** Es [ecf.dgii.gov.do/certecf/portalcertificacion](https://ecf.dgii.gov.do/certecf/portalcertificacion). Allí creas la postulación (Paso 3), subes los PDFs (Paso 6) y firmas la declaración jurada. Esta guía te lleva por cada pantalla.
+El recorrido completo tiene 10 pasos; los marcados con **DGII** se hacen en el portal de la DGII.
 
-> **Requisito previo**: Antes de iniciar la certificación, asegúrate de tener una cuenta activa en [ecf.mseller.app](https://ecf.mseller.app) y un certificado digital válido (archivo `.p12`). Si eres un proveedor de software y tu empresa aún no tiene certificado, puedes usar el de cualquiera de tus clientes para empezar las pruebas.
-
-> **Plazo**: con el `.p12` en mano, los pasos dentro de MSeller toman unos **10 minutos**. Luego se espera la aprobación de la DGII, que depende del estado del negocio ante la DGII.
+| Paso | Qué haces | Dónde |
+| --- | --- | --- |
+| [1](#paso-1--cargar-certificado-digital) | Cargar el certificado | MSeller |
+| [2](#paso-2--crear-api-key-para-certecf) | Crear la API Key de CerteCF | MSeller |
+| [3](#paso-3--crear-postulación-en-el-portal-dgii) | Crear la postulación | DGII |
+| [4](#paso-4--solicitar-aprobación-a-mseller) | Avisar a MSeller | Email |
+| [5](#paso-5--pruebas-de-simulación-e-cf) | Enviar los documentos de prueba (automático) | MSeller |
+| [6](#paso-6--descargar-pdfs-y-subirlos-al-portal-dgii) | Subir los PDFs | DGII |
+| [7](#paso-7--esperar-aprobación-de-representación-impresa) | Esperar la aprobación | DGII |
+| [8](#paso-8--configurar-urls-de-producción) | Cambiar las URLs a producción | DGII |
+| [9](#paso-9--realizar-declaración-jurada) | Firmar la declaración jurada | DGII |
+| [10](#paso-10--asignación-de-roles) | Asignar roles | Oficina Virtual DGII |
 
 ## Video tutorial
 

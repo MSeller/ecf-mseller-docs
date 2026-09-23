@@ -3,8 +3,6 @@ title: Mejores Prácticas
 description: Recomendaciones para una integración eficiente con MSeller ECF
 ---
 
-# Mejores Prácticas
-
 Implementar correctamente la facturación electrónica con MSeller ECF puede simplificar tu operación y garantizar el cumplimiento normativo. Aquí te presentamos algunas recomendaciones para optimizar tu integración.
 
 ## Arquitectura y Diseño
@@ -14,7 +12,7 @@ Implementar correctamente la facturación electrónica con MSeller ECF puede sim
 Recomendamos separar claramente las responsabilidades en tu implementación:
 
 1. **Generación de documentos**: Tu sistema debe encargarse de generar los datos necesarios para la factura.
-2. **Transformación a XML**: Implementa una capa de transformación que convierta tus datos al formato XML requerido.
+2. **Transformación a JSON**: Implementa una capa que convierta tus datos al [JSON de e-CF](/docs/integration/document-format). MSeller lo convierte a XML y lo firma.
 3. **Comunicación con MSeller ECF**: Implementa un servicio dedicado para la comunicación con nuestra API.
 4. **Almacenamiento y seguimiento**: Mantén un registro local de los documentos enviados y su estado.
 
@@ -38,8 +36,8 @@ Diseña tu sistema para manejar adecuadamente los diferentes tipos de errores qu
 ### Generación de documentos
 
 - Valida localmente los documentos antes de enviarlos para reducir rechazos.
-- Implementa pruebas unitarias para verificar la correcta generación de los documentos XML.
-- Considera utilizar bibliotecas especializadas para la generación y validación de XML.
+- Implementa pruebas unitarias para verificar la correcta generación de los documentos JSON.
+- Usa `?validate=true` en TesteCF para detectar errores antes de enviar a la DGII.
 
 ### Envío de documentos
 

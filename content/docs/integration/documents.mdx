@@ -4,9 +4,13 @@ seoTitle: "Enviar e-CF a la DGII por API: Ejemplos JSON"
 description: "Cómo emitir y enviar comprobantes fiscales electrónicos (e-CF) a la DGII con un POST JSON, y cómo leer la respuesta, con ejemplos."
 ---
 
-# Envío de Documentos
+<Callout title="En resumen">
+  1. Haz `POST /{entorno}/documentos-ecf` con el JSON del comprobante ([formato](/docs/integration/document-format), [ejemplos por tipo](/docs/integration/formato-documentos-ecf)).
+  2. Recibes al instante el `securityCode` y el `qr_url` para la factura impresa.
+  3. Unos segundos después, [consulta el estado](/docs/integration/document-queries) para saber si la DGII lo aceptó.
 
-Esta sección explica cómo enviar documentos electrónicos utilizando la API de MSeller ECF.
+  Durante el desarrollo usa `?validate=true` para detectar errores sin enviar a la DGII ([ver más](#parámetro-de-validación)).
+</Callout>
 
 ## Envío de documentos
 

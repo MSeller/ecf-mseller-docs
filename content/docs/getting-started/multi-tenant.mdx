@@ -1,74 +1,73 @@
 ---
-title: Multi-tenant (Múltiples Clientes)
-description: Cómo integrar MSeller ECF con una aplicación multi-tenant que maneja múltiples clientes o empresas
+title: Varios clientes (multi-tenant)
+seoTitle: "Multi-tenant e-CF: Integrar Varios Clientes con MSeller ECF"
+description: Cómo emitir e-CF para varios clientes o empresas desde tu software con MSeller ECF usando una cuenta Proveedor y una cuenta por cliente.
 ---
 
-# Multi-tenant (Múltiples Clientes)
+Esta página es para empresas de software (ERP, POS, SaaS) que emiten e-CF para **varios negocios**.
 
-¿Tu aplicación maneja múltiples clientes o empresas (multi-tenant)? **Sí, MSeller ECF puede manejar múltiples clientes o multi-tenants para tu aplicación.**
-
-El modelo se basa en una **cuenta principal (Proveedor)** que agrupa las cuentas de todos tus clientes, donde cada cliente mantiene su propia cuenta completamente aislada.
+<Callout type="warn" title="¿Puedo manejar todos mis clientes con una sola cuenta?">
+  **Hoy no.** No existe una credencial única de proveedor que opere sobre todos tus clientes. Cada cliente necesita **su propia cuenta**, con su email/contraseña, su API Key y su certificado. Tu cuenta **Proveedor** solo agrupa esas cuentas para que veas cuánto emite cada una.
+</Callout>
 
 ## Cómo funciona
 
-- Tu empresa crea una **cuenta principal** de tipo **Proveedor** que sirve para agrupar a tus clientes.
-- Cada cliente tiene **su propia cuenta**, vinculada a tu cuenta principal.
-- Desde tu cuenta principal puedes ver la cantidad de documentos que emite cada cliente mensualmente.
+| Cuenta | Quién | Para qué |
+| --- | --- | --- |
+| **Proveedor** (una) | Tu empresa | Agrupa a tus clientes y te deja ver cuántos documentos emite cada uno al mes. No emite e-CF. |
+| **Cliente** (una por cliente) | Cada negocio | Emite e-CF con su propio RNC, certificado y API Key. |
 
-## Pasos para configurarlo
+Cada cuenta está **aislada**: ningún cliente puede ver ni firmar documentos de otro.
 
-### 1. Crear la cuenta principal de tu empresa (Proveedor)
+## Configúralo paso a paso
 
-1. Visita [https://ecf.mseller.app/register](https://ecf.mseller.app/register) y crea una nueva cuenta para tu empresa.
-2. En el **paso 3** del registro, selecciona el tipo **Proveedor**.
-3. Utiliza tu cédula, RNC o pasaporte.
+<Steps>
+<Step>
+### Crea tu cuenta Proveedor
 
-> **Nota**: Si tu empresa no está registrada en la DGII, no importa. Esta cuenta se utilizará para agrupar a tus clientes, incluso si tu empresa no va a emitir e-CF.
+[Regístrate](https://ecf.mseller.app/register) y en el **paso 3** elige **Proveedor**. Usa tu RNC, cédula o pasaporte. No importa si tu empresa no está registrada en la DGII.
+</Step>
 
-### 2. Crear una cuenta para cada cliente
+<Step>
+### Crea una cuenta por cada cliente
 
-Para cada uno de tus clientes, crea una cuenta siguiendo el mismo proceso de registro, con una diferencia clave:
+Registra una cuenta nueva para el cliente. En el **paso 3** elige **Cuenta para mi cliente** e indica el **RNC o cédula de tu empresa proveedora**. Así queda vinculada a tu cuenta Proveedor.
+</Step>
 
-1. Visita [https://ecf.mseller.app/register](https://ecf.mseller.app/register) y crea una cuenta para el cliente.
-2. En el **paso 3** del registro, selecciona la opción **esta cuenta es para mi cliente**.
-3. Ingresa tu RNC, cédula o pasaporte (el de tu empresa proveedora).
+<Step>
+### Configura la cuenta del cliente
 
-De esta forma, la cuenta del cliente quedará vinculada bajo tu cuenta principal y podrás ver la cantidad de documentos que emite mensualmente.
+En la cuenta del cliente, repite los pasos normales: [sube su certificado `.p12`](/docs/getting-started/certificado) y [crea sus API Keys](/docs/getting-started/api-key).
+</Step>
 
-### 3. Configurar cada cliente de forma independiente
+<Step>
+### Certifica al cliente
 
-Cada cliente debe tener:
+Cada cliente se [certifica ante la DGII](/docs/certification/process) una vez, desde su propia cuenta. Toma unos 10 minutos, más la espera de la DGII.
+</Step>
+</Steps>
 
-- **Su propia cuenta**
-- **Sus propias credenciales (email/password)**
-- **Su propia API Key** (ver [Registro e Inicio](/docs/getting-started/registration#3-crear-una-api-key))
-- **Su propio certificado digital**
+## Qué guardar en tu sistema por cada cliente
 
-> **Una credencial por cliente**: la cuenta Proveedor no puede operar sobre las cuentas de sus clientes con una sola credencial. Guarda en tu sistema, **cifradas**, las credenciales (email/password y API Key) de cada cliente.
->
-> **Plan por cliente**: cada cliente tiene su propio plan y su consumo se mide por cuenta. Ver [¿Quién paga en un modelo multi-tenant?](/docs/getting-started/planes#quién-paga-en-un-modelo-multi-tenant).
+Tu software se autentica **como el cliente** en cada llamada. Guarda por cada tenant, **cifrado**:
 
-Esto permite que cada cuenta esté **completamente aislada** de las demás, con su propia identidad y seguridad, evitando mezclar información entre clientes y reduciendo la posibilidad de errores.
+- Email y contraseña de su cuenta MSeller
+- Su API Key de cada entorno
+- El entorno activo: `TesteCF`, `CerteCF` o `eCF`
 
-## Recomendación: habilitar eCF para tus clientes desde tu ERP
+## ¿Quién paga?
 
-Para permitir que tus clientes habiliten eCF en tu ERP, se recomienda crear un formulario para recopilar la información necesaria. Este proceso actualmente es difícil de automatizar y requiere intervención manual. Lo que estamos haciendo:
+**Cada cliente tiene su propio plan**, y el consumo se mide por cuenta (no se suma en la cuenta Proveedor). Si gestionas **más de 2 cuentas de pago**, tienes un descuento. Ver [Planes y pagos](/docs/getting-started/planes#quién-paga-en-un-modelo-multi-tenant).
 
-1. **Formulario de solicitud**: permite que el cliente llene un formulario para solicitar la habilitación de eCF.
-2. **Guiar al cliente en el proceso de certificación**:
-   - Guía al cliente para obtener su certificado digital, comprándolo en la [Cámara de Comercio de Santo Domingo](https://digi.camarasantodomingo.do/).
-   - Si tu empresa aún no tiene certificado propio, puedes usar el de cualquiera de tus clientes para empezar la integración y las pruebas.
-   - Luego sigue los pasos para certificar al cliente y solicitar a la DGII convertirse en **emisor electrónico**.
-   - Después puedes certificar a tu cliente usando MSeller siguiendo el [proceso de certificación](/docs/certification/process); te tomará unos 10 minutos.
-3. **Configuración por tenant**: en tu aplicación, permite que cada tenant configure su **entorno** (TesteCF, CerteCF o eCF), su **email/password** y su **API Key**.
+## Consejo: habilita e-CF desde tu propio software
 
-## Beneficios de este modelo
+Dar de alta un cliente todavía requiere pasos manuales. Lo que mejor funciona:
 
-- **Aislamiento total**: los datos, documentos y credenciales de cada cliente están separados.
-- **Seguridad**: cada cliente inicia sesión con sus propias credenciales (email/password), firma con su propio certificado digital y se autentica con su propia API Key.
-- **Visibilidad**: desde tu cuenta principal puedes monitorear el volumen de documentos emitidos mensualmente por cada cliente.
-- **Escalabilidad**: agrega nuevos clientes repitiendo el mismo proceso de registro.
+1. Un **formulario** en tu software donde el cliente solicita activar e-CF.
+2. **Guía al cliente** para comprar su certificado en la [Cámara de Comercio de Santo Domingo](https://digi.camarasantodomingo.do/).
+3. Crea su cuenta, carga su certificado y [certifícalo](/docs/certification/process).
+4. Una pantalla de **configuración por tenant** donde guardas su entorno, credenciales y API Key.
 
-## Siguiente paso
-
-Una vez creadas las cuentas de tus clientes, continúa con la [integración técnica](/docs/integration/overview) usando la API Key de cada cliente.
+<Callout title="¿Todavía no tienes certificado propio?">
+  Para desarrollar y probar, usa el certificado de **uno de tus clientes**. No necesitas esperar al tuyo.
+</Callout>

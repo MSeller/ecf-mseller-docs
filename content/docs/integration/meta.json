@@ -1,11 +1,11 @@
 {
-    "title": "Integración",
+    "title": "4. Integra tu software",
     "pages": [
         "overview",
         "authentication",
         "document-format",
-        "formato-documentos-ecf",
         "documents",
+        "formato-documentos-ecf",
         "document-queries",
         "anulacion-ncf"
     ],

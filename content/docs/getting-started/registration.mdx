@@ -1,62 +1,32 @@
 ---
-title: Registro e Inicio
-description: Cómo registrarse y comenzar con MSeller ECF
+title: "1. Crea tu cuenta"
+seoTitle: "Registro en MSeller ECF: Crear Cuenta de Facturación Electrónica"
+description: "Paso 1: crea tu cuenta en MSeller ECF y elige el tipo de cuenta correcto (negocio, proveedor o cliente de un proveedor)."
 ---
 
-# Registro e Inicio
+Tu cuenta es donde vive tu certificado, tus API Keys y tus comprobantes.
 
-Para comenzar a utilizar la plataforma de facturación electrónica MSeller ECF, sigue estos pasos:
+## Regístrate
 
-## 1. Creación de cuenta
+1. Entra a [ecf.mseller.app/register](https://ecf.mseller.app/register).
+2. Completa tus datos y crea una contraseña.
+3. En el **paso 3**, elige el tipo de cuenta (ver tabla abajo).
+4. Confirma tu email.
 
-El primer paso para integrar tu sistema con MSeller ECF es crear una cuenta:
+<Callout title="Tu email y contraseña son también tus credenciales del API">
+  Los usarás para entrar al portal y para [obtener el token](/docs/integration/authentication) en cada integración. Guárdalos de forma segura.
+</Callout>
 
-1. Visita [https://ecf.mseller.app/register](https://ecf.mseller.app/register)
-2. Completa el formulario con la información requerida
-3. Confirma tu dirección de correo electrónico
+## ¿Qué tipo de cuenta elijo?
 
-> **Importante**: La información de email y contraseña que utilices durante el registro serán tus credenciales para:
->
-> - Iniciar sesión en el portal [https://ecf.mseller.app/login](https://ecf.mseller.app/login)
-> - Autenticarte en las APIs de integración
+| Si eres… | Elige en el paso 3 | Qué hace |
+| --- | --- | --- |
+| Un negocio que emite sus propias facturas | **Cuenta para mi negocio** | Emite e-CF con tu RNC. Es la opción más común. |
+| Una empresa de software con varios clientes | **Proveedor** | Agrupa las cuentas de tus clientes. No emite e-CF. |
+| El cliente de un proveedor | **Cuenta para mi cliente** | Emite e-CF con el RNC del cliente y queda vinculada al proveedor. |
 
-## 2. Acceder al portal
-
-Una vez completado el registro:
-
-1. Inicia sesión en [https://ecf.mseller.app/login](https://ecf.mseller.app/login)
-2. Explora el panel de control para familiarizarte con las funciones disponibles
-
-## 3. Crear una API Key
-
-Para integrar programáticamente con la plataforma, necesitas crear una API Key:
-
-1. Navega a [https://ecf.mseller.app/api-keys/list](https://ecf.mseller.app/api-keys/list)
-2. Haz clic en "Crear nueva API Key"
-3. Selecciona el entorno apropiado:
-   - **TesteCF**: Para pruebas iniciales
-   - **CerteCF**: Para el proceso de certificación
-   - **eCF**: Para producción
-
-> **Nota**: Tanto la cantidad de requests por segundo (rate limit) como la **cuota mensual de requests** dependen del plan que hayas contratado (Gratis, Estándar o Empresarial). El consumo se mide **por request** — incluidas las consultas de estado del NCF —, no por comprobante emitido. Consulta el detalle en [Planes y Modelo Comercial](/docs/getting-started/planes).
-
-## 4. Cargar certificado digital
-
-Es indispensable cargar el certificado digital que será utilizado para firmar los documentos XML:
-
-1. Navega a [https://ecf.mseller.app/certificate/add](https://ecf.mseller.app/certificate/add)
-2. Sigue las instrucciones para cargar tu certificado digital
-
-> **También en TesteCF**: todos los ambientes, **incluido el de pruebas (TesteCF)**, requieren un certificado digital válido (`.p12`) cargado en la cuenta. No ofrecemos certificados de prueba, y un certificado autogenerado no funciona. Si envías un documento sin certificado, el API responde **`412` con el código `CERTIFICATE_NOT_CONFIGURED`**. Si aún no tienes certificado propio, puedes usar el de **cualquiera de tus clientes** para empezar la integración mientras tramitas el tuyo.
-
-Si aún no cuentas con un certificado digital, puedes obtenerlo en línea a través de la [Cámara de Comercio de Santo Domingo](https://www.camarasantodomingo.do/solicitudes/FormularioWeb/?AspxAutoDetectCookieSupport=1).
-
-## Requisitos previos para obtener el certificado
-
-Para poder obtener el certificado digital y comenzar el proceso de certificación, la empresa debe cumplir con los requisitos establecidos por la DGII (Dirección General de Impuestos Internos).
-
-Para más información, consulta el [Proceso de Certificación para ser Emisor Electrónico](https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Documentaciones%20Proceso%20de%20Certificaci%C3%B3n%20FE/Proceso%20de%20Certificacio%CC%81n%20para%20ser%20Emisor%20Electro%CC%81nico.pdf).
+¿Eres proveedor? Crea tu cuenta **Proveedor** y luego una **cuenta por cliente**. La guía completa está en [Varios clientes (multi-tenant)](/docs/getting-started/multi-tenant).
 
 ## Siguiente paso
 
-Una vez completados estos pasos, estás listo para comenzar la [integración técnica](/docs/integration/overview) con tu sistema.
+Con la cuenta creada, [sube tu certificado digital `.p12`](/docs/getting-started/certificado).

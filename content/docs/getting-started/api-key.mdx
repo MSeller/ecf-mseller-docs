@@ -1,0 +1,38 @@
+---
+title: "3. Crea tu API Key"
+seoTitle: "API Key de MSeller ECF: Entornos TesteCF, CerteCF y eCF"
+description: "Paso 3: crea una API Key para cada entorno (TesteCF, CerteCF y eCF) y aprende cuándo usar cada una."
+---
+
+La API Key identifica a tu sistema. Cada API Key pertenece a **un solo entorno**, así que normalmente tendrás tres.
+
+## Los tres entornos
+
+| Entorno | Para qué | ¿Cuándo la creo? |
+| --- | --- | --- |
+| **TesteCF** | Desarrollo y pruebas. No tiene validez fiscal. | Ahora, para empezar a integrar. |
+| **CerteCF** | Pruebas oficiales de certificación con la DGII. | El [asistente de certificación](/docs/certification/process) la crea por ti. |
+| **eCF** | Producción: comprobantes reales. | Cuando la DGII apruebe tu certificación. |
+
+## Crea la API Key
+
+1. Entra a [ecf.mseller.app/api-keys/list](https://ecf.mseller.app/api-keys/list).
+2. Haz clic en **Agregar nueva API Key**.
+3. Elige el entorno (empieza con **TesteCF**) y copia la clave.
+
+Envíala en el encabezado `X-API-KEY` de cada solicitud, junto con tu token:
+
+```
+Authorization: Bearer {idToken}
+X-API-KEY: {tu_api_key}
+```
+
+<Callout type="warn">
+  Trata la API Key como una contraseña: guárdala en variables de entorno o en un gestor de secretos, nunca en el código ni en el frontend.
+</Callout>
+
+La velocidad máxima (requests por segundo) y la cuota mensual dependen de tu plan. Ver [Planes y pagos](/docs/getting-started/planes).
+
+## Siguiente paso
+
+Ya tienes todo lo necesario. [Integra tu software](/docs/integration/overview).
