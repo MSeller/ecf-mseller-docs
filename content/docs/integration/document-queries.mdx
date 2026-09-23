@@ -4,9 +4,14 @@ seoTitle: "Consulta de e-CF: Estado y Validación en la DGII (API)"
 description: "Consulta el estado de un e-CF y verifica si la DGII lo aceptó: consulta individual y en lote con la API REST de MSeller ECF, con ejemplos."
 ---
 
-# Consulta de Documentos
+Después de [enviar un e-CF](/docs/integration/documents), consulta aquí si la DGII lo aceptó o lo rechazó.
 
-Esta sección explica cómo consultar el estado de documentos electrónicos enviados previamente a través de la API de MSeller ECF.
+<Callout title="En resumen">
+  - **Un documento**: `GET /{entorno}/documentos-ecf?ecf={eNCF}` — ver [consulta individual](#consulta-individual).
+  - **Varios documentos**: usa la [consulta en batch](#consulta-en-batch); es una sola llamada.
+  - Espera unos segundos después del envío y **deja de consultar** cuando el estado sea final (Aceptado o Rechazado).
+  - **No hay webhooks por ahora.** Cada consulta consume un request de tu cuota.
+</Callout>
 
 ## Consulta individual
 

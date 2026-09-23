@@ -1,13 +1,19 @@
 {
     "title": "Documentación MSeller ECF",
     "pages": [
-        "---Documentación---",
-        "index.mdx",
+        "---Empieza aquí---",
+        "index",
         "getting-started/registration",
+        "getting-started/certificado",
+        "getting-started/api-key",
+        "integration",
+        "certification/process",
+        "---Clientes y pagos---",
         "getting-started/multi-tenant",
         "getting-started/planes",
-        "integration",
-        "certification",
-        "resources"
+        "---Recursos---",
+        "resources/faq",
+        "resources/best-practices",
+        "resources/glossary"
     ]
 }

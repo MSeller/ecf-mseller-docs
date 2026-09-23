@@ -1,81 +1,85 @@
 ---
-title: Planes y Modelo Comercial
-description: Diferencias entre Developer/Community y Partner Comercial, planes técnicos y cómo se cuenta el consumo
+title: Planes y pagos
+seoTitle: "Precios y Planes de Facturación Electrónica e-CF — MSeller ECF"
+description: Cuánto cuesta MSeller ECF, cómo pagar, quién paga cuando tienes varios clientes y cómo se cuenta el consumo.
 ---
 
-# Planes y Modelo Comercial
+<Callout title="En resumen">
+  - Empiezas **gratis**. Cada plan es un **precio fijo mensual** por un tramo de comprobantes.
+  - Pagas **con tarjeta** desde **Configuración → Facturación** en el portal.
+  - Con varios clientes, **cada cliente tiene su propio plan**. Con más de 2 cuentas de pago tienes descuento.
+</Callout>
 
-MSeller ECF ofrece **dos productos distintos**. No son niveles del mismo servicio: responden a dos tipos de relación diferentes. Elegir el correcto evita confusiones sobre soporte, responsabilidad y facturación.
+## Planes
 
-- **Developer / Community** — para desarrolladores que integran la facturación electrónica de forma **autogestionada (self-serve)**. El desarrollador da soporte a su propio cliente final.
-- **Partner Comercial** — para aliados con **contrato firmado** que requieren SLA, soporte dedicado y co-branding.
+| Plan | Comprobantes/mes | Precio/mes | Requests/mes | Velocidad |
+| --- | ---: | ---: | ---: | ---: |
+| **Gratis** | hasta 250 | RD$0 | 1,000 | 5 req/s |
+| **Emprende** | hasta 500 | RD$850 (US$15) | 2,000 | 10 req/s |
+| **Básico** | hasta 1,000 | RD$1,400 (US$24) | 4,000 | 15 req/s |
+| **Negocio** | hasta 2,500 | RD$2,400 (US$41) | 10,000 | 30 req/s |
+| **Avanzado** | hasta 6,000 | RD$4,900 (US$84) | 24,000 | 60 req/s |
+| **Empresa** | hasta 10,000 | RD$7,500 (US$128) | 100,000 | 200 req/s |
+| **Corporativo** | más de 10,000 | Por contrato | Por contrato | Por contrato |
 
-## Comparación de productos
+Precios y beneficios actualizados en [ecf.mseller.app/precios](https://ecf.mseller.app/precios).
 
-| Aspecto | Developer / Community | Partner Comercial |
+- **No hay cargos por excedente.** Si superas el tramo, pasas al plan siguiente.
+- El plan **Gratis** es solo para **microempresas y pequeñas empresas clasificadas por la DGII**, sin fecha de vencimiento. Es el tramo para ese volumen, no un saldo de regalo que se sume a un plan pago.
+- Los planes que ya existían (por ejemplo, **Estándar**) siguen funcionando con sus condiciones.
+
+## Cómo pagar
+
+1. Entra al portal y ve a **Configuración → Facturación** ([ecf.mseller.app/account/billing](https://ecf.mseller.app/account/billing)).
+2. Elige el plan y paga con tarjeta en la página segura de **Stripe**.
+3. El plan se activa en unos segundos.
+
+Desde el mismo lugar, en **Administrar facturación**, cambias de plan, actualizas la tarjeta, descargas tus facturas o cancelas.
+
+<Callout type="warn" title="¿Necesitas comprobante fiscal (NCF)?">
+  El pago mensual en línea **no incluye NCF**. Si tu empresa lo necesita, la contratación es **anual** y se le agrega el **ITBIS**. Solicítalo desde [soporte](https://ecf.mseller.app/support).
+</Callout>
+
+Si no ves la opción **Facturación** en tu cuenta, el pago en línea aún no está activo para ti. Escríbenos por [soporte](https://ecf.mseller.app/support) o WhatsApp y te ayudamos a contratar.
+
+## ¿Quién paga en un modelo multi-tenant?
+
+Si trabajas con una cuenta **Proveedor** ([ver multi-tenant](/docs/getting-started/multi-tenant)):
+
+- **Cada cliente tiene su propia cuenta y su propio plan.** El consumo se mide por cuenta, no se suma en la cuenta Proveedor.
+- Un cliente que emite poco puede quedarse en **Gratis** (si califica); los demás contratan el plan de su volumen.
+- Si gestionas **más de 2 cuentas de pago**, recibes un **descuento de 10% a 20%** sobre esas cuentas. Te damos un **código promocional** que se aplica al pagar.
+
+## Developer / Community o Partner Comercial
+
+Son dos formas de trabajar con nosotros, no dos niveles del mismo plan.
+
+| | Developer / Community | Partner Comercial |
 | --- | --- | --- |
-| **Modelo de acceso** | Self-serve, sin contrato | Requiere firma de contrato |
-| **Requisitos** | Registro en la plataforma | Contrato + garantía de clientes de pago |
-| **SLA** | Sin SLA contractual (best-effort) | SLA contractual con tiempos de respuesta |
-| **Soporte** | Comunidad (Discord), best-effort | L2 dedicado y canal directo |
-| **Soporte a cliente final** | Lo asume el desarrollador | Responsabilidad definida en contrato |
-| **Escalamiento crítico** | No | Sí |
-| **Co-branding** | No | Sí |
-| **Planes disponibles** | Gratis y Estándar | Empresarial |
-| **Descuento** | 10%–20% con más de 2 cuentas activas de pago | Por volumen de tenants (25%–40%) |
+| **Cómo se accede** | Te registras y listo | Firma de contrato |
+| **Requisito** | Ninguno | Más de 10 clientes de pago |
+| **Descuento** | 10%–20% con más de 2 cuentas de pago | 25%–30% según la cantidad de clientes |
+| **Soporte** | Comunidad en Discord (best-effort) | L2 dedicado, canal directo y escalamiento |
+| **SLA contractual** | No | Sí |
+| **Soporte al cliente final** | Lo da el desarrollador | Se define en el contrato |
 
-## Planes técnicos
-
-Todos los planes se miden en **requests por mes** y tienen límites de velocidad (rate limit) asociados:
-
-| Plan | Requests/mes | Rate (req/s) | Burst | Producto |
-| --- | ---: | ---: | ---: | --- |
-| **Gratis** | 1,000 | 5 | 10 | Developer / Community |
-| **Estándar** | 20,000 | 50 | 100 | Developer / Community |
-| **Empresarial** | 100,000 | 200 | 400 | Partner Comercial |
-
-El plan **Gratis** está dirigido **únicamente a microempresas y pequeñas empresas clasificadas como tales por la DGII**, y es **gratuito de forma indefinida** para esos clientes dentro del límite de 1,000 requests/mes. Es el tramo para ese volumen, no un saldo de requests de regalo sobre un plan pago: al superarlo, la cuenta pasa al plan que le corresponda.
-
-A partir de **más de 2 cuentas activas de pago**, un cliente Developer/Community recibe entre **10% y 20% de descuento** sobre el costo de esas cuentas. El porcentaje se acuerda según el volumen gestionado.
+Todos empiezan como **Developer / Community**. Cuando tengas más de 10 clientes de pago y necesites SLA, [escríbenos](https://ecf.mseller.app/support) para el programa Partner. El programa Partner no incluye co-branding.
 
 ## ¿Cómo se cuenta el consumo?
 
-El consumo se mide **por request** (cada llamada al API), **no por comprobante emitido**.
+Los planes se venden por **comprobantes**, pero el API cuenta **requests** (cada llamada). Cada plan incluye unos **4 requests por comprobante**, suficiente para emitirlo y consultar su estado.
 
-> **Importante**: Las **consultas de estado del NCF también consumen un request**. Emitir un e-CF y luego consultar su estado son **dos requests**, no uno.
-
-### Equivalencia práctica
-
-Con **1,000 requests/mes** y un manejo cauteloso (sin llamadas innecesarias), puedes emitir del orden de **~250 comprobantes/mes**, ya que cada comprobante suele consumir entre **3 y 4 requests** entre la emisión y las consultas de estado.
+<Callout type="warn">
+  **Consultar el estado de un e-CF también consume un request.** Emitir y luego consultar son dos requests.
+</Callout>
 
 ### Cómo aprovechar tu cuota
 
-Para no desperdiciar requests:
+- **Reutiliza el token** en lugar de autenticarte en cada llamada.
+- **Consulta por lote** ([consulta en batch](/docs/integration/document-queries#consulta-en-batch)) en vez de un documento a la vez.
+- **No consultes en bucle**: espera unos segundos y detente cuando el estado sea final (Aceptado o Rechazado).
+- Ante fallos temporales, **reintenta con espera creciente** (backoff), no de inmediato.
 
-- **Cachea y reutiliza el token de acceso** en lugar de re-autenticarte en cada llamada.
-- **No hagas polling agresivo** del estado: consulta solo tras un intervalo razonable y **detente al llegar a un estado final** (aceptado/rechazado).
-- **Usa reintentos con backoff** (no en bucle inmediato) ante fallos temporales.
-- **Consulta el estado por lote** cuando sea posible, en vez de una llamada por documento.
+## Siguiente paso
 
-Consulta las [Mejores Prácticas](/docs/resources/best-practices) y la [Consulta de Documentos](/docs/integration/document-queries) para más detalle.
-
-## Descuentos de Partner Comercial
-
-Los Partners Comerciales reciben un descuento escalonado según la cantidad de **tenants** (clientes/emisores finales gestionados):
-
-| Tenants | Descuento |
-| --- | ---: |
-| 1 – 10 | 25% |
-| 11 – 30 | 30% |
-| 31 – 75 | 35% |
-| 76+ | 40% |
-
-## ¿Cuál elijo?
-
-<Cards>
-  <Card title="Soy desarrollador (self-serve)" href="/docs/getting-started/registration" />
-  <Card title="Quiero ser Partner Comercial" href="https://ecf.mseller.app/support" />
-</Cards>
-
-- Empieza como **Developer / Community**: regístrate, crea tu API Key y usa el plan Gratis (1,000 requests/mes). Cuando tu cliente supere ese límite, pasa al plan que le corresponda; con más de 2 cuentas activas de pago aplica el descuento de entre 10% y 20%.
-- Si necesitas **SLA, co-branding y soporte dedicado** bajo contrato, contacta a nuestro equipo para el programa **Partner Comercial**.
+¿Dudas que no están aquí? Revisa las [Preguntas frecuentes](/docs/resources/faq).

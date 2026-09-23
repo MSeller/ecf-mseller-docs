@@ -1,44 +1,38 @@
 ---
-title: "Vista General de Integración"
+title: "Cómo funciona la integración"
 seoTitle: "API de Facturación Electrónica e-CF: Vista General"
 description: "Cómo integrar la API REST de facturación electrónica (e-CF) de MSeller en tu sistema: entornos, autenticación y flujo de emisión ante la DGII."
 ---
 
-# Integración con MSeller ECF
+Ya tienes cuenta, certificado y API Key. Ahora adapta tu sistema. Todo el trabajo técnico son estas cinco piezas, en este orden:
 
-Esta sección explica el proceso técnico para integrar tu sistema con la plataforma MSeller ECF para facturación electrónica.
+| # | Pieza | Qué haces | Página |
+| --- | --- | --- | --- |
+| 1 | Autenticación | Obtienes un token con tu email y contraseña. | [Autenticación](/docs/integration/authentication) |
+| 2 | Formato JSON | Conviertes tu factura al JSON de la DGII. | [Formato JSON](/docs/integration/document-format) |
+| 3 | Envío | Haces un `POST` con el JSON. Recibes el código de seguridad y el QR al instante. | [Envío de e-CF](/docs/integration/documents) |
+| 4 | Consulta | Preguntas si la DGII lo aceptó o lo rechazó. | [Consulta de e-CF](/docs/integration/document-queries) |
+| 5 | Anulación (opcional) | Anulas secuencias de e-NCF que no llegaste a usar. | [Anulación de e-NCF](/docs/integration/anulacion-ncf) |
 
-## Flujo de integración
+¿Necesitas el JSON de un tipo concreto (31, 32, 33, 34, 41, 43…)? Está en [Ejemplos JSON por tipo](/docs/integration/formato-documentos-ecf).
 
-La integración con MSeller ECF sigue un flujo de trabajo simple:
+<Callout title="Tú envías JSON, no XML">
+  MSeller convierte el JSON a XML, lo firma con tu certificado, lo envía a la DGII y guarda el XML firmado. No necesitas generar ni firmar XML.
+</Callout>
 
-1. **Autenticación** - Obtener un token de acceso
-2. **Generación de documentos XML** - Crear documentos según el formato requerido
-3. **Envío de documentos** - Enviar los documentos a la plataforma
-4. **Consulta y seguimiento** - Verificar el estado de los documentos enviados
-5. **Anulación de secuencias** - Anular ante la DGII los rangos de e-NCF que no
-   llegaron a utilizarse (ver [Anulación de e-NCF](/docs/integration/anulacion-ncf))
+## Entornos
 
-## Entornos disponibles
+Cambia solo la URL base y la API Key; el resto de tu código es igual en los tres.
 
-MSeller ECF ofrece tres entornos para facilitar el desarrollo e implementación:
+| Entorno | URL base | Uso |
+| --- | --- | --- |
+| TesteCF | `https://ecf.api.mseller.app/TesteCF` | Desarrollo y pruebas |
+| CerteCF | `https://ecf.api.mseller.app/CerteCF` | Certificación con la DGII |
+| eCF | `https://ecf.api.mseller.app/eCF` | Producción |
 
-| Entorno | URL Base                            | Propósito                         |
-| ------- | ----------------------------------- | --------------------------------- |
-| TesteCF | https://ecf.api.mseller.app/TesteCF | Pruebas iniciales y desarrollo    |
-| CerteCF | https://ecf.api.mseller.app/CerteCF | Proceso de certificación con DGII |
-| eCF     | https://ecf.api.mseller.app/eCF     | Producción (facturación oficial)  |
+## Cómo se procesa un e-CF
 
-## Requisitos técnicos
-
-Para una integración exitosa, necesitarás:
-
-- Credenciales de usuario (email y contraseña)
-- API Key generada para el entorno correspondiente
-- Certificado digital válido cargado en la plataforma
-- Capacidad para generar documentos en formato XML según las especificaciones de DGII
-
-## Flujo de Procesamiento
+El envío es **asíncrono**: respondemos en el momento con el código de seguridad y el QR, y la respuesta de la DGII llega unos segundos después. Por eso consultas el estado en un segundo paso.
 
 <Mermaid
   chart="
@@ -82,15 +76,6 @@ flowchart TD;
 "
 />
 
-## Siguientes pasos
+## Siguiente paso
 
-Continúa con las siguientes secciones para detalles específicos sobre cada paso del proceso de integración:
-
-<Cards>
-  <Card title="Autenticación" href="/docs/api/authentication" />
-  <Card
-    title="Formato de Documentos"
-    href="/docs/integration/document-format"
-  />
-  <Card title="Envío de Documentos" href="/docs/api/documents" />
-</Cards>
+Empieza por la [autenticación](/docs/integration/authentication).

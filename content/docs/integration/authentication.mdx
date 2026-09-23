@@ -4,9 +4,11 @@ seoTitle: "Autenticación de la API e-CF: Token y API Key"
 description: "Cómo obtener un token de acceso y usar tu API Key para autenticarte en la API de facturación electrónica e-CF de MSeller ECF."
 ---
 
-# Autenticación API
-
-Para interactuar con la API de MSeller ECF, es necesario implementar un proceso de autenticación que combina credenciales de usuario y una API Key. Este proceso te proporcionará un token de acceso que deberás utilizar en cada solicitud posterior.
+<Callout title="En resumen">
+  1. Haz `POST /{entorno}/customer/authentication` con tu **email y contraseña** y guarda el `idToken`.
+  2. En cada llamada envía `Authorization: Bearer {idToken}` y `X-API-KEY: {tu_api_key}`.
+  3. **Reutiliza el token** hasta que expire: autenticarte en cada llamada gasta requests de tu cuota.
+</Callout>
 
 ## Proceso de autenticación
 

@@ -4,41 +4,17 @@ seoTitle: "Formato JSON de e-CF: Campos y Especificación"
 description: "Cómo estructurar el JSON para emitir e-CF con MSeller ECF según el esquema de la DGII; la plataforma lo convierte a XML y lo firma por ti."
 ---
 
-# Formato de Documentos JSON
+Envías cada comprobante como **JSON**. MSeller lo convierte a XML y lo firma por ti.
 
-Para utilizar MSeller ECF, debes enviar documentos en formato JSON que sigan la estructura basada en las especificaciones de la DGII. La plataforma se encargará de transformar automáticamente tu JSON a XML y de aplicar la firma electrónica.
+<Callout title="La regla de oro">
+  El JSON usa **los mismos nombres de campo y la misma estructura** que el XML oficial de la DGII. Si sabes qué campo va en el XML, ya sabes cómo va en el JSON.
+</Callout>
 
 ## Especificaciones de DGII
 
 Aunque enviarás los documentos en formato JSON, la estructura debe seguir el mismo esquema definido por la DGII para los documentos XML. Puedes consultar la documentación oficial para entender la descripción de cada campo en el [Formato Comprobante Fiscal Electrónico (e-CF) V1.0](<https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Formatos%20XML/Formato%20Comprobante%20Fiscal%20Electr%C3%B3nico%20(e-CF)%20V1.0.pdf>).
 
-## Proceso de transformación JSON a XML
-
-MSeller ECF simplifica el proceso de integración al manejar automáticamente la transformación de JSON a XML y la firma electrónica. El flujo completo es el siguiente:
-
-### En el Cliente:
-
-1. **Envío de JSON**: Tu sistema envía el documento en formato JSON
-2. **Recepción de respuesta**: Recibes inmediatamente códigos de seguridad y enlace QR
-3. **Consulta posterior**: Puedes consultar el estado final del documento cuando lo necesites
-
-### En MSeller:
-
-1. **Recepción del JSON**: MSeller recibe el documento JSON
-2. **Transformación a XML**: Conversión automática al formato requerido por la DGII
-3. **Firma electrónica**: Aplicación de la firma con tu certificado digital
-4. **Almacenamiento**: Guardado seguro del documento XML firmado
-5. **Generación de códigos**: Creación de códigos de seguridad y QR para la representación impresa
-6. **Envío asíncrono**: MSeller envía el documento a la DGII
-7. **Gestión de estado**: Actualización del estado del documento tras la respuesta de la DGII
-
-### En la DGII:
-
-1. **Recepción**: La DGII recibe el documento XML firmado
-2. **Procesamiento**: Validación y procesamiento del documento fiscal
-
-
-### Ejemplo de documento JSON
+## Ejemplo de documento JSON
 
 A continuación se muestra un ejemplo del formato JSON que debes enviar:
 
@@ -124,7 +100,7 @@ A continuación se muestra un ejemplo del formato JSON que debes enviar:
 }
 ```
 
-### Implementaciones de referencia
+## Implementaciones de referencia
 
 Para facilitar la implementación, proporcionamos ejemplos de código que puedes utilizar como referencia:
 
@@ -165,14 +141,6 @@ Al generar los documentos JSON, ten en cuenta:
 2. **Datos requeridos**: Asegúrate de incluir todos los campos obligatorios.
 3. **Formato de valores**: Presta especial atención al formato de fechas, montos y otros campos con formato específico.
 4. **Procesamiento asíncrono**: Recuerda que el documento se procesa de forma asíncrona, por lo que debes consultar su estado después.
-
-## Herramientas recomendadas
-
-Para facilitar la generación y validación de documentos JSON:
-
-- **Bibliotecas JSON**: Utiliza bibliotecas estándar para la manipulación de JSON en tu lenguaje de programación.
-- **Validadores JSON Schema**: Implementa validaciones contra un esquema JSON basado en la estructura requerida.
-- **Clientes HTTP**: Utiliza librerías robustas para las llamadas a la API.
 
 ## Soporte técnico
 

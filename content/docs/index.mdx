@@ -1,52 +1,74 @@
 ---
-title: "Documentación de MSeller ECF"
+title: "Cómo empezar"
 seoTitle: "Documentación API e-CF DGII — MSeller ECF"
-description: "Documentación de la API de facturación electrónica de MSeller ECF: registro, certificación DGII (CerteCF), envío y consulta de e-CF, con ejemplos."
+description: "Guía paso a paso para emitir e-CF con MSeller ECF: crea tu cuenta, sube tu certificado, crea tu API Key, integra tu software y certifica ante la DGII."
 ---
 
-# Bienvenido a MSeller ECF
+MSeller ECF es una API para emitir **comprobantes fiscales electrónicos (e-CF)** ante la DGII. Tú envías un **JSON**; nosotros lo convertimos a XML, lo firmamos con tu certificado, lo enviamos a la DGII y guardamos el XML por 10 años.
 
-ECF MSeller es una plataforma diseñada para integrar de manera sencilla la facturación electrónica en tu negocio o sistema. Nuestra plataforma abstrae toda la complejidad relacionada con:
+Esta guía te lleva en orden. Sigue los pasos y usa el botón **Siguiente** al final de cada página.
 
-- **Comunicación con la DGII** (Dirección General de Impuestos Internos)
-- **Administración de certificados electrónicos**
-- **Seguridad**
-- **Hospedaje en la nube**
-- **Almacenamiento de documentos XML**
-- **Manejo de plan de contingencia**
-- **Recepción de facturación electrónica**
-- **Aprobación comercial**
+## Antes de empezar
 
-Permitiendo a los desarrolladores enfocarse únicamente en adaptar el formato de factura a sus necesidades.
+Necesitas tres cosas:
 
-## Primeros pasos
+- Un **certificado digital `.p12`** del negocio que va a emitir. Es obligatorio incluso para pruebas.
+- Un sistema capaz de hacer **llamadas HTTP con JSON** (cualquier lenguaje sirve).
+- Unos **10 minutos** para la certificación, más el tiempo de aprobación de la DGII.
 
-<Cards>
-  <Card title="Registro e Inicio" href="/docs/getting-started/registration" />
-  <Card title="Integración Técnica" href="/docs/integration/overview" />
-</Cards>
+## Los pasos
 
-## ¿Por qué elegir MSeller ECF?
+<Steps>
+<Step>
+### [Crea tu cuenta](/docs/getting-started/registration)
 
-Nuestra plataforma simplifica el proceso de implementación de facturación electrónica, permitiéndote cumplir con los requisitos regulatorios mientras te enfocas en lo que realmente importa: hacer crecer tu negocio.
+Regístrate en [ecf.mseller.app](https://ecf.mseller.app/register). Tu email y contraseña también son tus credenciales del API.
+</Step>
 
-## Planes y modelo comercial
+<Step>
+### [Sube tu certificado `.p12`](/docs/getting-started/certificado)
 
-MSeller ECF ofrece **dos productos distintos** según el tipo de relación:
+Lo usamos para firmar cada comprobante. Sin certificado, el API no acepta documentos, ni siquiera en pruebas.
+</Step>
 
-- **Developer / Community** (self-serve): plan **Gratis** con **1,000 requests/mes** de forma indefinida, dirigido únicamente a **microempresas y pequeñas empresas clasificadas por la DGII**. Ese límite es el tramo del plan, no un saldo que se sume a un plan pago: al superarlo, la cuenta pasa al plan que le corresponda. Con **más de 2 cuentas activas de pago** aplica un descuento de entre **10% y 20%** sobre el costo de esas cuentas; el porcentaje se acuerda según el volumen gestionado. El consumo se mide **por request** (incluidas las consultas de estado del NCF), no por comprobante emitido — con uso cauteloso, 1,000 requests equivalen a **~250 comprobantes/mes**.
-- **Partner Comercial** (bajo contrato): SLA, co-branding, L2 dedicado y soporte escalado para aliados con clientes de pago.
+<Step>
+### [Crea tu API Key](/docs/getting-started/api-key)
 
-Consulta el detalle completo en [Planes y Modelo Comercial](/docs/getting-started/planes).
+Una por entorno: **TesteCF** (pruebas), **CerteCF** (certificación) y **eCF** (producción).
+</Step>
 
-## Únete a nuestra comunidad
+<Step>
+### [Integra tu software](/docs/integration/overview)
 
-¿Tienes preguntas o necesitas ayuda con tu integración? Únete a nuestra comunidad de desarrolladores eCF-Dominicana en Discord donde podrás:
+Autentícate, arma el JSON de cada tipo de e-CF, envíalo y consulta su estado.
+</Step>
 
-- Obtener soporte técnico en tiempo real
-- Compartir experiencias con otros integradores
-- Acceder a anuncios de actualizaciones y nuevas funcionalidades
-- Participar en discusiones sobre mejores prácticas
+<Step>
+### [Certifica ante la DGII](/docs/certification/process)
+
+Un asistente en el portal hace las pruebas por ti. Al terminar, pasas a producción.
+</Step>
+</Steps>
+
+## ¿Tienes varios clientes?
+
+Si eres una empresa de software y vas a emitir para **varios negocios**, lee primero [Varios clientes (multi-tenant)](/docs/getting-started/multi-tenant). Hoy **cada cliente necesita su propia cuenta**; no es posible manejarlos a todos con una sola cuenta.
+
+## Preguntas que nos hacen siempre
+
+| Pregunta | Respuesta corta |
+| --- | --- |
+| ¿Cuánto cuesta? | Hay un plan **Gratis** (250 comprobantes/mes, para micro y pequeñas empresas) y planes pagos por volumen. Ver [Planes y pagos](/docs/getting-started/planes). |
+| ¿Cómo pago? | Con tarjeta, desde **Configuración → Facturación** en el portal. Ver [Cómo pagar](/docs/getting-started/planes#cómo-pagar). |
+| ¿Hay un certificado de prueba? | No. Usa un `.p12` real, el tuyo o el de uno de tus clientes. |
+| ¿Tienen webhooks? | Todavía no. El estado se consulta con el API. |
+| ¿MSeller está autorizado por la DGII? | Sí. Ver la [FAQ](/docs/resources/faq#mseller-ecf-está-autorizado-por-la-dgii-como-proveedor). |
+
+Más respuestas en [Preguntas frecuentes](/docs/resources/faq).
+
+## ¿Necesitas ayuda?
+
+Únete a la comunidad **eCF-Dominicana** en Discord: soporte técnico, anuncios y otros integradores.
 
 <div className="flex justify-center my-8">
   <a
@@ -61,5 +83,3 @@ Consulta el detalle completo en [Planes y Modelo Comercial](/docs/getting-starte
     Únete a nuestro Discord
   </a>
 </div>
-
-> **Consejo**: Al unirte a la comunidad, asegúrate de presentarte y mencionar tu proyecto para que podamos ayudarte mejor.
