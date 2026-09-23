@@ -1,72 +1,165 @@
 ---
 title: Varios clientes (multi-tenant)
-seoTitle: "Multi-tenant e-CF: Integrar Varios Clientes con MSeller ECF"
-description: Cómo emitir e-CF para varios clientes o empresas desde tu software con MSeller ECF usando una cuenta Proveedor y una cuenta por cliente.
+seoTitle: "Multi-tenant e-CF: Gestiona Varios Clientes con MSeller ECF"
+description: Cómo una empresa de software crea y gestiona las cuentas de sus clientes (certificado y API Keys) desde el portal de Proveedor de MSeller ECF.
 ---
 
 Esta página es para empresas de software (ERP, POS, SaaS) que emiten e-CF para **varios negocios**.
 
-<Callout type="warn" title="¿Puedo manejar todos mis clientes con una sola cuenta?">
-  **Hoy no.** No existe una credencial única de proveedor que opere sobre todos tus clientes. Cada cliente necesita **su propia cuenta**, con su email/contraseña, su API Key y su certificado. Tu cuenta **Proveedor** solo agrupa esas cuentas para que veas cuánto emite cada una.
+<Callout title="En resumen">
+  - Cada cliente sigue teniendo **su propia cuenta**, con su RNC, su certificado y sus API Keys. Ningún cliente ve ni firma documentos de otro.
+  - Desde tu cuenta **Proveedor** puedes **crear la cuenta de un cliente en un paso** y **gestionar su certificado y sus API Keys** sin entrar a su cuenta.
+  - Si el cliente ya tenía cuenta, **él te autoriza** desde su portal y a partir de ahí la gestionas igual.
 </Callout>
 
 ## Cómo funciona
 
 | Cuenta | Quién | Para qué |
 | --- | --- | --- |
-| **Proveedor** (una) | Tu empresa | Agrupa a tus clientes y te deja ver cuántos documentos emite cada uno al mes. No necesitas emitir e-CF con ella. |
+| **Proveedor** (una) | Tu empresa | Crea y agrupa las cuentas de tus clientes, gestiona su certificado y sus API Keys, y te muestra cuántos documentos emite cada una al mes. No necesitas emitir e-CF con ella. |
 | **Cliente** (una por cliente) | Cada negocio | Emite e-CF con su propio RNC, certificado y API Key. |
 
-Cada cuenta está **aislada**: ningún cliente puede ver ni firmar documentos de otro.
+Desde tu panel puedes gestionar una cuenta de cliente en dos casos:
 
-## Configúralo paso a paso
+- **La creaste tú** desde el panel de Proveedor.
+- **El cliente te autorizó** desde su portal (clientes que ya tenían cuenta).
+
+## 1. Crea tu cuenta Proveedor
+
+[Regístrate](https://ecf.mseller.app/register) y en el **paso 3** elige **Proveedor**. Usa tu RNC, cédula o pasaporte. No importa si tu empresa no está registrada en la DGII.
+
+Al entrar, tu **Dashboard** muestra el panel de Proveedor con el botón **Crear subcuenta** y la tabla de tus clientes.
+
+## 2. Agrega a tus clientes
+
+<Tabs items={['Cliente nuevo', 'Cliente que ya tiene cuenta']}>
+<TabsContent value="Cliente nuevo">
+
+Crea la cuenta del cliente **desde tu panel, en un solo paso**: sin registro de varios pasos y sin código de verificación. Queda vinculada a ti automáticamente.
 
 <Steps>
 <Step>
-### Crea tu cuenta Proveedor
+### Abre el formulario
 
-[Regístrate](https://ecf.mseller.app/register) y en el **paso 3** elige **Proveedor**. Usa tu RNC, cédula o pasaporte. No importa si tu empresa no está registrada en la DGII.
+En el **Dashboard**, pulsa **Crear subcuenta**. Arriba verás cuántas subcuentas llevas (por ejemplo, **1 de 3**).
 </Step>
 
 <Step>
-### Crea una cuenta por cada cliente
+### Completa los datos del negocio
 
-Registra una cuenta nueva para el cliente. En el **paso 3** elige **Cuenta para mi cliente** e indica el **RNC o cédula de tu empresa proveedora**. Así queda vinculada a tu cuenta Proveedor.
+- **RNC o Cédula** del cliente: 9 dígitos (RNC) u 11 dígitos (Cédula), sin guiones.
+- **Nombre del negocio**, **nombre y apellido** del contacto y **teléfono**.
+- **Correo**: será el usuario de acceso del negocio. Usa un correo **propio de cada cliente**: no se puede repetir entre cuentas.
+- **Certificado `.p12` y su contraseña** (opcional): puedes subirlo ahora o después. Si el cliente es persona física (Cédula), el certificado debe estar **a su nombre**.
 </Step>
 
 <Step>
-### Configura la cuenta del cliente
+### Confirma la autorización
 
-En la cuenta del cliente, repite los pasos normales: [sube su certificado `.p12`](/docs/getting-started/certificado) y [crea sus API Keys](/docs/getting-started/api-key).
+Marca **"Confirmo que este negocio me autorizó a crear y gestionar su cuenta de facturación electrónica"** y crea la subcuenta.
 </Step>
 
 <Step>
-### Certifica al cliente
+### El dueño recibe su bienvenida
 
-Cada cliente se [certifica ante la DGII](/docs/certification/process) una vez, desde su propia cuenta. Toma unos 10 minutos, más la espera de la DGII.
+MSeller envía un correo de bienvenida al negocio avisando que **tú** creaste su cuenta. Para entrar al portal, el dueño va a [ecf.mseller.app/forgot-password](https://ecf.mseller.app/forgot-password), elige **Olvidé mi contraseña** con ese correo y crea su contraseña.
 </Step>
 </Steps>
 
+</TabsContent>
+<TabsContent value="Cliente que ya tiene cuenta">
+
+Si el cliente se registró antes con **Cuenta para mi cliente** e indicó tu RNC, ya aparece en tu tabla, pero **no puedes gestionarlo hasta que él te autorice**. La tabla lo muestra como **No gestionable**.
+
+<Steps>
+<Step>
+### Pídele al cliente que entre a su portal
+
+El dueño de la cuenta inicia sesión en [ecf.mseller.app](https://ecf.mseller.app) y va a **Mi cuenta**.
+</Step>
+
+<Step>
+### El cliente te autoriza
+
+En la tarjeta **Acceso de tu proveedor** verá tu RNC. Pulsa **Autorizar a mi proveedor** y confirma. Antes de confirmar se le explica qué podrás hacer y qué no.
+</Step>
+
+<Step>
+### Ya puedes gestionarlo
+
+Pulsa **Actualizar** en tu tabla: la fila del cliente ahora muestra **Gestionar**.
+</Step>
+</Steps>
+
+<Callout title="Solo el dueño puede autorizar">
+  La autorización solo aplica al proveedor que el cliente indicó al registrarse, y solo la da el dueño desde su propia cuenta. Ni tú ni nadie más puede activarla por él.
+</Callout>
+
+</TabsContent>
+</Tabs>
+
+## 3. Gestiona el certificado y las API Keys de un cliente
+
+En la tabla de tu Dashboard, pulsa **Gestionar** en la fila del cliente. Verás dos tarjetas:
+
+### Certificado digital
+
+- Ve si tiene certificado, su **fecha de vencimiento** y si está **Vigente**, **Vence en X días** o **Vencido**.
+- **Instala o reemplaza** el certificado: selecciona el `.p12`, escribe su contraseña y pulsa **Instalar certificado** (o **Reemplazar certificado**).
+- Si el cliente es persona física (Cédula), el certificado debe estar **a su nombre**; si no coincide, se rechaza.
+
+### API Keys
+
+- Elige el **Ambiente** (`TesteCF`, `CerteCF` o `eCF`), agrega una descripción opcional y pulsa **Crear API key**.
+- **Copia la llave en ese momento**: se muestra **una sola vez**. Guárdala cifrada en tu sistema.
+- La lista muestra las llaves del cliente **enmascaradas** (solo los últimos 4 caracteres).
+- Para dar de baja una llave, pulsa el ícono de papelera → **Revocar**. La integración que la use deja de funcionar de inmediato.
+- Puedes tener hasta **10 API Keys por cliente**. Si llegas al límite, revoca una para crear otra.
+
+### Lo que el Proveedor no puede hacer
+
+Por seguridad del cliente:
+
+- **No puedes descargar** el certificado de un cliente, solo instalarlo o reemplazarlo.
+- **No puedes ver** el valor de API Keys que ya existían; solo el de las que creas tú, y solo al crearlas.
+- **Cada cambio que haces** (certificado nuevo, API Key creada o revocada) **se le notifica al dueño por correo**.
+- El dueño puede **quitarte el acceso** cuando quiera desde **Mi cuenta → Acceso de tu proveedor → Quitar acceso**. Las API Keys que ya creaste siguen funcionando hasta que él las revoque.
+
+## 4. Certifica a cada cliente
+
+Cada cliente (cada RNC) se [certifica ante la DGII](/docs/certification/process) **una vez**. Toma unos 10 minutos, más la espera de la DGII.
+
 ## Qué guardar en tu sistema por cada cliente
 
-Tu software se autentica **como el cliente** en cada llamada. Guarda por cada tenant, **cifrado**:
+La API se autentica **como el cliente** en cada llamada ([ver autenticación](/docs/integration/authentication)). Guarda por cada tenant, **cifrado**:
 
-- Email y contraseña de su cuenta MSeller
-- Su API Key de cada entorno
-- El entorno activo: `TesteCF`, `CerteCF` o `eCF`
+- **Email y contraseña** de su cuenta MSeller. Si creaste la cuenta desde tu panel, la contraseña se define con **Olvidé mi contraseña** usando el correo de la cuenta.
+- Su **API Key** de cada entorno (la creas desde **Gestionar**).
+- El **entorno activo**: `TesteCF`, `CerteCF` o `eCF`.
+
+<Callout type="warn" title="Una contraseña distinta por cliente">
+  No uses la misma contraseña en todas las cuentas de tus clientes. Si una se filtra, solo queda expuesta esa cuenta y no todas.
+</Callout>
+
+## Límite de subcuentas
+
+Tu cuenta Proveedor puede **crear 3 subcuentas** de entrada. El panel muestra cuántas llevas.
+
+¿Necesitas más? Pulsa **Solicitar más subcuentas** en tu Dashboard: te lleva al formulario de [soporte](https://ecf.mseller.app/support) con el asunto listo. Revisamos la solicitud y ampliamos tu límite.
+
+Los clientes que **te autorizan** desde su portal **no cuentan** contra este límite.
 
 ## ¿Quién paga?
 
-**Cada cliente tiene su propio plan**, y el consumo se mide por cuenta (no se suma en la cuenta Proveedor). Si gestionas **más de 2 cuentas de pago**, tienes un descuento. Ver [Planes y pagos](/docs/getting-started/planes#quién-paga-en-un-modelo-multi-tenant).
+**Cada cliente tiene su propio plan**, y el consumo se mide por cuenta (no se suma en la cuenta Proveedor). Las subcuentas que creas desde el panel empiezan en el plan **Gratis**. Si gestionas **más de 2 cuentas de pago**, tienes un descuento. Ver [Planes y pagos](/docs/getting-started/planes#quién-paga-en-un-modelo-multi-tenant).
 
 ## Consejo: habilita e-CF desde tu propio software
 
-Dar de alta un cliente todavía requiere pasos manuales. Lo que mejor funciona:
-
 1. Un **formulario** en tu software donde el cliente solicita activar e-CF.
 2. **Guía al cliente** para comprar su certificado en la [Cámara de Comercio de Santo Domingo](https://digi.camarasantodomingo.do/).
-3. Crea su cuenta, carga su certificado y [certifícalo](/docs/certification/process).
-4. Una pantalla de **configuración por tenant** donde guardas su entorno, credenciales y API Key.
+3. **Crea su subcuenta** desde tu panel de Proveedor, **instala su certificado** y **crea sus API Keys** desde **Gestionar**.
+4. [Certifícalo](/docs/certification/process) ante la DGII.
+5. Una pantalla de **configuración por tenant** en tu software donde guardas su entorno, credenciales y API Key.
 
 <Callout title="¿Todavía no tienes certificado propio?">
   Para desarrollar y probar, usa el certificado de **uno de tus clientes**. No necesitas esperar al tuyo.

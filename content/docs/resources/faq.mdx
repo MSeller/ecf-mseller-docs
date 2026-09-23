@@ -30,11 +30,23 @@ Con el `.p12` en mano, la [certificación](/docs/certification/process) toma uno
 
 ### ¿Puedo manejar todos mis clientes desde una sola cuenta?
 
-**Hoy no.** Cada cliente necesita **su propia cuenta**, con su email/contraseña, su API Key y su certificado. Tu cuenta **Proveedor** agrupa esas cuentas y te muestra cuánto emite cada una. Ver [Varios clientes (multi-tenant)](/docs/getting-started/multi-tenant).
+**Sí, desde el portal.** Con tu cuenta **Proveedor** puedes **crear la cuenta de cada cliente en un paso** y **gestionar su certificado y sus API Keys** desde tu Dashboard (botón **Gestionar**). Cada cliente sigue teniendo **su propia cuenta**, aislada de las demás. Ver [Varios clientes (multi-tenant)](/docs/getting-started/multi-tenant).
 
-### ¿La cuenta Proveedor puede operar sobre sus clientes con una sola credencial?
+### Mi cliente ya tenía cuenta. ¿Cómo lo gestiono?
 
-No. Cada llamada se autentica con las credenciales **del cliente**. Guarda en tu sistema, **cifradas**, las credenciales, la API Key y el entorno de cada cliente.
+El dueño debe **autorizarte** desde su portal: **Mi cuenta → Acceso de tu proveedor → Autorizar a mi proveedor**. Solo aplica al proveedor que indicó al registrarse. Luego pulsa **Actualizar** en tu tabla y verás **Gestionar**. Ver [Cliente que ya tiene cuenta](/docs/getting-started/multi-tenant#2-agrega-a-tus-clientes).
+
+### ¿Cuántas subcuentas puedo crear?
+
+**3** de entrada. Para más, pulsa **Solicitar más subcuentas** en tu Dashboard y envía la solicitud por soporte. Los clientes que te autorizan desde su portal no cuentan contra ese límite.
+
+### ¿El Proveedor puede descargar el certificado o ver las API Keys de un cliente?
+
+No. Puedes **instalar o reemplazar** el certificado y **crear o revocar** API Keys, pero no descargar el certificado ni ver llaves que ya existían. El dueño recibe un **correo por cada cambio** que haces y puede quitarte el acceso cuando quiera.
+
+### ¿La cuenta Proveedor puede emitir e-CF por sus clientes con una sola credencial?
+
+No. En la API, cada llamada se autentica con las credenciales **del cliente** (su email/contraseña y su API Key). Guarda en tu sistema, **cifradas**, las credenciales, la API Key y el entorno de cada cliente.
 
 ### ¿Cada cliente se certifica por separado?
 
