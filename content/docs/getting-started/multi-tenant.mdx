@@ -44,6 +44,10 @@ Cada cliente debe tener:
 - **Su propia API Key** (ver [Registro e Inicio](/docs/getting-started/registration#3-crear-una-api-key))
 - **Su propio certificado digital**
 
+> **Una credencial por cliente**: la cuenta Proveedor no puede operar sobre las cuentas de sus clientes con una sola credencial. Guarda en tu sistema, **cifradas**, las credenciales (email/password y API Key) de cada cliente.
+>
+> **Plan por cliente**: cada cliente tiene su propio plan y su consumo se mide por cuenta. Ver [¿Quién paga en un modelo multi-tenant?](/docs/getting-started/planes#quién-paga-en-un-modelo-multi-tenant).
+
 Esto permite que cada cuenta esté **completamente aislada** de las demás, con su propia identidad y seguridad, evitando mezclar información entre clientes y reduciendo la posibilidad de errores.
 
 ## Recomendación: habilitar eCF para tus clientes desde tu ERP
@@ -53,6 +57,7 @@ Para permitir que tus clientes habiliten eCF en tu ERP, se recomienda crear un f
 1. **Formulario de solicitud**: permite que el cliente llene un formulario para solicitar la habilitación de eCF.
 2. **Guiar al cliente en el proceso de certificación**:
    - Guía al cliente para obtener su certificado digital, comprándolo en la [Cámara de Comercio de Santo Domingo](https://digi.camarasantodomingo.do/).
+   - Si tu empresa aún no tiene certificado propio, puedes usar el de cualquiera de tus clientes para empezar la integración y las pruebas.
    - Luego sigue los pasos para certificar al cliente y solicitar a la DGII convertirse en **emisor electrónico**.
    - Después puedes certificar a tu cliente usando MSeller siguiendo el [proceso de certificación](/docs/certification/process); te tomará unos 10 minutos.
 3. **Configuración por tenant**: en tu aplicación, permite que cada tenant configure su **entorno** (TesteCF, CerteCF o eCF), su **email/password** y su **API Key**.

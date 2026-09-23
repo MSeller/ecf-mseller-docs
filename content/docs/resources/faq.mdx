@@ -19,6 +19,10 @@ Según las regulaciones de la DGII, la facturación electrónica será obligator
 
 MSeller ECF es una plataforma que facilita la integración de la facturación electrónica en tu negocio o sistema, abstrayendo la complejidad técnica y regulatoria del proceso.
 
+### ¿MSeller ECF está autorizado por la DGII como proveedor?
+
+Sí. **IT SOLUCLICK SRL** (RNC **130862346**), la empresa detrás de MSeller ECF, aparece en el [listado de proveedores de servicios de facturación electrónica autorizados de la DGII](https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Paginas/Proveedores-servicios-FE-autorizados.aspx) con fecha de certificación **19/09/2025**. Puedes verificarlo buscando "IT SOLUCLICK SRL" en ese listado.
+
 ## Técnicas
 
 ### ¿Qué tecnología necesito para integrarme con MSeller ECF?
@@ -33,6 +37,18 @@ Sí, la plataforma está diseñada para ser integrada con cualquier sistema exis
 
 Sí, MSeller ECF puede manejar múltiples clientes o multi-tenants para tu aplicación. Crea una cuenta principal de tipo **Proveedor** para tu empresa (que agrupa a tus clientes, incluso si no vas a emitir e-CF) y luego una cuenta para cada cliente seleccionando **esta cuenta es para mi cliente** en el paso 3 del registro. Cada cliente debe tener su propia cuenta, sus propias credenciales (email/password), su propia API Key y su propio certificado digital, completamente aislados entre sí. Consulta la guía completa en [Multi-tenant (Múltiples Clientes)](/docs/getting-started/multi-tenant).
 
+### ¿Puede la cuenta Proveedor operar sobre las cuentas de sus clientes con una sola credencial?
+
+No. Cada cliente tiene su propio email, contraseña, API Key y certificado digital, y cada solicitud se autentica con las credenciales de ese cliente. Así ningún cliente puede ver ni firmar documentos de otro. En tu sistema debes guardar, **cifradas**, las credenciales de cada cliente junto con su entorno (TesteCF, CerteCF o eCF).
+
+### ¿Tienen webhooks para notificar el estado de los comprobantes?
+
+Por ahora **no ofrecemos webhooks**; el estado se obtiene consultando el API. Para consumir menos requests:
+
+- Consulta el estado **por lote** ([consulta en batch](/docs/integration/document-queries#consulta-en-batch)): muchos documentos en una sola llamada.
+- Usa la **consulta individual** solo cuando necesites el resultado de un documento puntual, y deja de consultarlo cuando llegue a un estado final (Aceptado o Rechazado).
+- **Reutiliza el token** de acceso en vez de autenticarte en cada llamada.
+
 ### ¿Qué pasa si mi sistema ya genera facturas en otro formato?
 
 Solo necesitarás implementar la transformación de tu formato actual al formato XML requerido por la DGII. Nuestra plataforma se encarga del resto del proceso.
@@ -42,6 +58,14 @@ Solo necesitarás implementar la transformación de tu formato actual al formato
 ### ¿Cómo obtengo un certificado digital?
 
 Puedes obtener un certificado digital a través de la [Cámara de Comercio de Santo Domingo](https://www.camarasantodomingo.do/solicitudes/FormularioWeb/?AspxAutoDetectCookieSupport=1).
+
+### ¿Qué necesito para empezar?
+
+Lo único indispensable es un **certificado digital válido (`.p12`)** del negocio, que se compra en la Cámara de Comercio de Santo Domingo. Si tu empresa (por ejemplo, un proveedor de software que integra a varios clientes) todavía no tiene uno, **puedes usar el certificado de cualquiera de tus clientes** para empezar la integración y las pruebas mientras obtienes el tuyo.
+
+### ¿Cuánto tarda un cliente en emitir en producción desde que tiene su certificado?
+
+Con el `.p12` en mano, el [proceso de certificación](/docs/certification/process) dentro de MSeller toma unos **10 minutos**. Después hay que esperar la aprobación de la DGII, que puede tomar desde varios minutos, según el estado del negocio ante la DGII.
 
 ### ¿Cuáles son los requisitos para certificarme como emisor electrónico?
 
@@ -59,7 +83,7 @@ Contamos con **dos productos** (Developer/Community y Partner Comercial) y tres 
 
 - **Gratis**: 1,000 requests/mes, gratuito de forma indefinida. Dirigido únicamente a microempresas y pequeñas empresas clasificadas por la DGII; ideal para desarrollo, pruebas y clientes pequeños. Es el tramo para ese volumen, no un saldo de requests de regalo: al superar el límite, la cuenta pasa al plan que le corresponda.
 - **Estándar**: 20,000 requests/mes. Los clientes Developer/Community con **más de 2 cuentas activas de pago** reciben entre **10% y 20% de descuento** sobre el costo de esas cuentas; el porcentaje se acuerda según el volumen gestionado.
-- **Empresarial**: 100,000 requests/mes, asociado al producto Partner Comercial.
+- **Empresarial**: 100,000 requests/mes, asociado al producto Partner Comercial (con contrato, a partir de **más de 10 clientes de pago**, con un descuento de **25% a 30%** según la cantidad de clientes).
 
 Consulta el detalle en [Planes y Modelo Comercial](/docs/getting-started/planes).
 
@@ -67,12 +91,23 @@ Consulta el detalle en [Planes y Modelo Comercial](/docs/getting-started/planes)
 
 El consumo se mide **por request** (cada llamada al API), **no por comprobante emitido**. Es importante saber que **consultar el estado de un NCF también consume un request**: emitir un e-CF y luego consultar su estado son dos requests. Con un uso cauteloso, 1,000 requests equivalen a **~250 comprobantes/mes**. Revisa los [consejos para aprovechar tu cuota](/docs/getting-started/planes#cómo-aprovechar-tu-cuota).
 
+> Si en otro lugar ves "250 comprobantes gratis al mes" y aquí "1,000 requests", ambas cifras se refieren a lo mismo: 1,000 requests alcanzan para unos 250 comprobantes, porque cada comprobante usa entre 3 y 4 requests. La medida oficial es el request.
+
+### Con una cuenta Proveedor, ¿quién paga cuando un cliente supera el plan gratis?
+
+Cada cliente tiene **su propia cuenta y su propio plan**; el consumo se evalúa por cuenta de cliente. Hay dos modelos comerciales:
+
+- **Developer / Community**: sin contrato. Con más de 2 cuentas activas de pago, reciben entre **10% y 20%** de descuento.
+- **Partner Comercial**: con contrato, a partir de **más de 10 clientes de pago**. Incluye SLA, soporte dedicado y un descuento de **25% a 30%** según la cantidad de clientes.
+
+Consulta [Planes y Modelo Comercial](/docs/getting-started/planes).
+
 ### ¿Ofrecen soporte técnico?
 
 El nivel de soporte depende del producto:
 
 - **Developer / Community**: soporte best-effort a través de la comunidad en Discord. El desarrollador da soporte a su propio cliente final.
-- **Partner Comercial**: SLA contractual con tiempos de respuesta, L2 dedicado, escalamiento crítico y canal directo.
+- **Partner Comercial**: SLA contractual con tiempos de respuesta, L2 dedicado, escalamiento crítico y canal directo (a partir de más de 10 clientes de pago).
 
 ### ¿Pueden ayudarme con la implementación?
 

@@ -8,21 +8,20 @@ description: Diferencias entre Developer/Community y Partner Comercial, planes t
 MSeller ECF ofrece **dos productos distintos**. No son niveles del mismo servicio: responden a dos tipos de relación diferentes. Elegir el correcto evita confusiones sobre soporte, responsabilidad y facturación.
 
 - **Developer / Community** — para desarrolladores que integran la facturación electrónica de forma **autogestionada (self-serve)**. El desarrollador da soporte a su propio cliente final.
-- **Partner Comercial** — para aliados con **contrato firmado** que requieren SLA, soporte dedicado y co-branding.
+- **Partner Comercial** — para aliados con **contrato firmado** y **más de 10 clientes de pago** que requieren SLA y soporte dedicado.
 
 ## Comparación de productos
 
 | Aspecto | Developer / Community | Partner Comercial |
 | --- | --- | --- |
 | **Modelo de acceso** | Self-serve, sin contrato | Requiere firma de contrato |
-| **Requisitos** | Registro en la plataforma | Contrato + garantía de clientes de pago |
+| **Requisitos** | Registro en la plataforma | Contrato + más de 10 clientes de pago |
 | **SLA** | Sin SLA contractual (best-effort) | SLA contractual con tiempos de respuesta |
 | **Soporte** | Comunidad (Discord), best-effort | L2 dedicado y canal directo |
 | **Soporte a cliente final** | Lo asume el desarrollador | Responsabilidad definida en contrato |
 | **Escalamiento crítico** | No | Sí |
-| **Co-branding** | No | Sí |
 | **Planes disponibles** | Gratis y Estándar | Empresarial |
-| **Descuento** | 10%–20% con más de 2 cuentas activas de pago | Por volumen de tenants (25%–40%) |
+| **Descuento** | 10%–20% con más de 2 cuentas activas de pago | 25%–30% según la cantidad de clientes |
 
 ## Planes técnicos
 
@@ -59,16 +58,15 @@ Para no desperdiciar requests:
 
 Consulta las [Mejores Prácticas](/docs/resources/best-practices) y la [Consulta de Documentos](/docs/integration/document-queries) para más detalle.
 
+## ¿Quién paga en un modelo multi-tenant?
+
+Si integras varios clientes con una cuenta **Proveedor** (ver [Multi-tenant](/docs/getting-started/multi-tenant)), **cada cliente tiene su propia cuenta y su propio plan**. El consumo y el plan se evalúan por cuenta de cliente, no de forma agregada en la cuenta Proveedor.
+
 ## Descuentos de Partner Comercial
 
-Los Partners Comerciales reciben un descuento escalonado según la cantidad de **tenants** (clientes/emisores finales gestionados):
+El programa Partner Comercial está disponible a partir de **más de 10 clientes de pago** (tenants: clientes/emisores finales gestionados) y requiere contrato. El descuento va de **25% a 30%** según la cantidad de clientes; el porcentaje exacto se acuerda en el contrato.
 
-| Tenants | Descuento |
-| --- | ---: |
-| 1 – 10 | 25% |
-| 11 – 30 | 30% |
-| 31 – 75 | 35% |
-| 76+ | 40% |
+> **Nota**: El programa Partner no incluye co-branding.
 
 ## ¿Cuál elijo?
 
@@ -78,4 +76,4 @@ Los Partners Comerciales reciben un descuento escalonado según la cantidad de *
 </Cards>
 
 - Empieza como **Developer / Community**: regístrate, crea tu API Key y usa el plan Gratis (1,000 requests/mes). Cuando tu cliente supere ese límite, pasa al plan que le corresponda; con más de 2 cuentas activas de pago aplica el descuento de entre 10% y 20%.
-- Si necesitas **SLA, co-branding y soporte dedicado** bajo contrato, contacta a nuestro equipo para el programa **Partner Comercial**.
+- Si tienes **más de 10 clientes de pago** y necesitas **SLA y soporte dedicado** bajo contrato, contacta a nuestro equipo para el programa **Partner Comercial**.

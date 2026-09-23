@@ -8,6 +8,8 @@ description: "Consulta el estado de un e-CF y verifica si la DGII lo aceptó: co
 
 Esta sección explica cómo consultar el estado de documentos electrónicos enviados previamente a través de la API de MSeller ECF.
 
+> **Sin webhooks por ahora**: el estado se obtiene consultando el API, y cada consulta consume un request. Prefiere la [consulta en batch](#consulta-en-batch) para varios documentos, deja de consultar un documento al llegar a un estado final (Aceptado o Rechazado) y reutiliza tu token de acceso.
+
 ## Consulta individual
 
 Para consultar el estado de un documento enviado previamente, debes realizar una solicitud GET al endpoint de consulta:
