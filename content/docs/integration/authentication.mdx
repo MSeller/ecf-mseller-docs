@@ -6,7 +6,7 @@ description: "Cómo obtener un token de acceso y usar tu API Key para autenticar
 
 <Callout title="En resumen">
   1. Haz `POST /{entorno}/customer/authentication` con tu **email y contraseña** y guarda el `idToken`.
-  2. En cada llamada envía `Authorization: Bearer {idToken}` y `X-API-KEY: {tu_api_key}`.
+  2. En las llamadas siguientes envía `Authorization: Bearer {idToken}` y, en los endpoints que lo piden (envío y consulta de e-CF), `X-API-KEY: {tu_api_key}`.
   3. **Reutiliza el token** hasta que expire: autenticarte en cada llamada gasta requests de tu cuota.
 </Callout>
 

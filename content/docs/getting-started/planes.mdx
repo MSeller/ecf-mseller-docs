@@ -67,7 +67,7 @@ Todos empiezan como **Developer / Community**. Cuando tengas más de 10 clientes
 
 ## ¿Cómo se cuenta el consumo?
 
-Los planes se venden por **comprobantes**, pero el API cuenta **requests** (cada llamada). Cada plan incluye unos **4 requests por comprobante**, suficiente para emitirlo y consultar su estado.
+Los planes se venden por **comprobantes**, pero el API cuenta **requests** (cada llamada). Cada plan incluye **al menos 4 requests por comprobante**, suficiente para emitirlo y consultar su estado.
 
 <Callout type="warn">
   **Consultar el estado de un e-CF también consume un request.** Emitir y luego consultar son dos requests.
@@ -77,7 +77,7 @@ Los planes se venden por **comprobantes**, pero el API cuenta **requests** (cada
 
 - **Reutiliza el token** en lugar de autenticarte en cada llamada.
 - **Consulta por lote** ([consulta en batch](/docs/integration/document-queries#consulta-en-batch)) en vez de un documento a la vez.
-- **No consultes en bucle**: espera unos segundos y detente cuando el estado sea final (Aceptado o Rechazado).
+- **No consultes en bucle**: espera unos segundos y detente cuando el estado sea final (Aceptado, Aceptado Condicional o Rechazado).
 - Ante fallos temporales, **reintenta con espera creciente** (backoff), no de inmediato.
 
 ## Siguiente paso

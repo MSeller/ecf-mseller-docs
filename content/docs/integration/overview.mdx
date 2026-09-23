@@ -32,7 +32,7 @@ Cambia solo la URL base y la API Key; el resto de tu código es igual en los tre
 
 ## Cómo se procesa un e-CF
 
-El envío es **asíncrono**: respondemos en el momento con el código de seguridad y el QR, y la respuesta de la DGII llega unos segundos después. Por eso consultas el estado en un segundo paso.
+El envío es **asíncrono**: respondemos en el momento con el código de seguridad y el QR, y la DGII responde después; normalmente en segundos, pero puede tardar más. Por eso consultas el estado en un segundo paso, hasta que sea final.
 
 <Mermaid
   chart="
