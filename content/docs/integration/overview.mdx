@@ -4,7 +4,7 @@ seoTitle: "API de Facturación Electrónica e-CF: Vista General"
 description: "Cómo integrar la API REST de facturación electrónica (e-CF) de MSeller en tu sistema: entornos, autenticación y flujo de emisión ante la DGII."
 ---
 
-Ya tienes cuenta, certificado y API Key. Ahora adapta tu sistema. Todo el trabajo técnico son estas cinco piezas, en este orden:
+Ya tienes cuenta, certificado y API Key. Ahora adapta tu sistema. Todo el trabajo técnico son estas seis piezas, en este orden:
 
 | # | Pieza | Qué haces | Página |
 | --- | --- | --- | --- |
@@ -12,7 +12,8 @@ Ya tienes cuenta, certificado y API Key. Ahora adapta tu sistema. Todo el trabaj
 | 2 | Formato JSON | Conviertes tu factura al JSON de la DGII. | [Formato JSON](/docs/integration/document-format) |
 | 3 | Envío | Haces un `POST` con el JSON. Recibes el código de seguridad y el QR al instante. | [Envío de e-CF](/docs/integration/documents) |
 | 4 | Consulta | Preguntas si la DGII lo aceptó o lo rechazó. | [Consulta de e-CF](/docs/integration/document-queries) |
-| 5 | Anulación (opcional) | Anulas secuencias de e-NCF que no llegaste a usar. | [Anulación de e-NCF](/docs/integration/anulacion-ncf) |
+| 5 | Impresión | Imprimes la factura con el QR y el código de seguridad, en tu formato o con nuestro PDF. | [Representación impresa](/docs/integration/representacion-impresa) |
+| 6 | Anulación (opcional) | Anulas secuencias de e-NCF que no llegaste a usar. | [Anulación de e-NCF](/docs/integration/anulacion-ncf) |
 
 ¿Necesitas el JSON de un tipo concreto (31, 32, 33, 34, 41, 43…)? Está en [Ejemplos JSON por tipo](/docs/integration/formato-documentos-ecf).
 

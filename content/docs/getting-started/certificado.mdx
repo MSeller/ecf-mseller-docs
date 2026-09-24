@@ -21,7 +21,25 @@ El certificado digital (archivo **`.p12`** + su contraseña) es la firma electr�
 2. Sube el archivo `.p12` y escribe su contraseña.
 3. Verás el **RNC** del certificado y su **fecha de expiración**. Anota esa fecha: tendrás que renovarlo antes.
 
-El certificado queda guardado en la cuenta y sirve para los tres entornos (TesteCF, CerteCF y eCF).
+El certificado queda guardado en la cuenta y sirve para los tres entornos (TesteCF, CerteCF y eCF). **No necesitas uno por entorno.**
+
+## Preguntas sobre el certificado
+
+### ¿Está incluido en el plan?
+
+No. El certificado lo emite una entidad de certificación, no MSeller, y se compra aparte. El **precio y la vigencia** los fija quien lo emite y dependen de la opción que elijas (por ejemplo, 1 o 2 años). Consúltalos en la [Cámara de Comercio de Santo Domingo](https://digi.camarasantodomingo.do/).
+
+### ¿Quién hace el trámite?
+
+El **negocio que va a emitir** (el titular del RNC o su representante legal), porque el certificado se emite a su nombre. MSeller no lo tramita por ti. Una vez que lo tengas, te ayudamos a cargarlo y a certificarte.
+
+### Tengo varios clientes. ¿Uno por cliente?
+
+Sí. Cada negocio firma con **su propio certificado**, a nombre de su RNC. Como proveedor, lo instalas en la cuenta de cada cliente desde **Gestionar** ([ver multi-tenant](/docs/getting-started/multi-tenant#3-gestiona-el-certificado-y-las-api-keys-de-un-cliente)).
+
+### ¿Me avisan cuando va a vencer?
+
+Sí. Enviamos un correo **30, 15, 7 y 1 día antes** del vencimiento y el día que vence, con recordatorios semanales entre esas fechas. Con el certificado vencido no se puede firmar: renuévalo y cárgalo de nuevo antes de esa fecha.
 
 ## Siguiente paso
 

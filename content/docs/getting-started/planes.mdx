@@ -7,7 +7,8 @@ description: Cuánto cuesta MSeller ECF, cómo pagar, quién paga cuando tienes 
 <Callout title="En resumen">
   - Empiezas **gratis**. Cada plan es un **precio fijo mensual** por un tramo de comprobantes.
   - Pagas **con tarjeta** desde **Configuración → Facturación** en el portal.
-  - Con varios clientes, **cada cliente tiene su propio plan**. Con más de 2 cuentas de pago tienes descuento.
+  - Con varios clientes, **cada cliente tiene su propio plan**. Lo paga el cliente o lo pagas tú y se lo facturas. Con 3 o más cuentas de pago tienes descuento.
+  - **No hay cambio de plan automático.** Si una cuenta agota su cuota del mes, el API responde `429` hasta que cambie de plan o empiece el mes siguiente.
 </Callout>
 
 ## Planes
@@ -24,9 +25,32 @@ description: Cuánto cuesta MSeller ECF, cómo pagar, quién paga cuando tienes 
 
 Precios y beneficios actualizados en [ecf.mseller.app/precios](https://ecf.mseller.app/precios).
 
-- **No hay cargos por excedente.** Si superas el tramo, pasas al plan siguiente.
+- **No hay cargos por excedente ni cambio de plan automático.** Si tu volumen crece, cambias tú de plan desde **Configuración → Facturación**. Ver [¿Qué pasa si me paso del límite?](#qué-pasa-si-me-paso-del-límite).
 - El plan **Gratis** es solo para **microempresas y pequeñas empresas clasificadas por la DGII**, sin fecha de vencimiento. Es el tramo para ese volumen, no un saldo de regalo que se sume a un plan pago.
 - Los planes que ya existían (por ejemplo, **Estándar**) siguen funcionando con sus condiciones.
+
+### ¿Cómo se valida que califico para el plan Gratis?
+
+El negocio **declara** su clasificación al registrarse; no pedimos documentos para empezar. Además de la clasificación, **evalúa el volumen real del cliente**:
+
+- Cuenta **todos los documentos** que emite en un mes, no solo las facturas de venta: comprobantes de compra, notas de crédito y débito, gastos menores, etc.
+- Mira el **promedio de varios meses**, no un mes suelto.
+- Si ese promedio está **cerca de 250 o por encima** (por ejemplo, entre 200 y 350, con meses que pasan de 250 y otros que no), el cliente **debe estar en un plan de pago**. En Gratis, el mes que se pase la plataforma **dejará de recibir sus documentos** hasta que cambie de plan.
+
+Si el volumen o el tipo de negocio no corresponde a una micro o pequeña empresa, te pediremos pasar al plan que le toca.
+
+### ¿Qué pasa si me paso del límite?
+
+- El límite que se aplica es el de **requests del mes** de la tabla (por ejemplo, **1,000** en Gratis). Ver [¿Cómo se cuenta el consumo?](#cómo-se-cuenta-el-consumo).
+- Al agotarlo, el API responde **`429`** y **no acepta más envíos ni consultas** de esa cuenta hasta que:
+  - **cambies a un plan mayor** (se activa en segundos), o
+  - **empiece el mes siguiente**. La cuota se reinicia el día 1 de cada mes (hora UTC), no en la fecha de tu cobro.
+- **No te subimos de plan solos** ni te cobramos excedentes.
+- **No enviamos aviso** cuando te acercas al límite. Si tu negocio crece, lleva tu propio conteo de envíos y cambia de plan antes de llegar al tope.
+
+<Callout type="warn" title="Para restaurantes, tiendas y cualquier punto de venta">
+  Un `429` en plena operación significa no poder facturar. Elige el plan con margen sobre tu volumen real del mes y vigila el consumo.
+</Callout>
 
 ## Cómo pagar
 
@@ -48,7 +72,35 @@ Si trabajas con una cuenta **Proveedor** ([ver multi-tenant](/docs/getting-start
 
 - **Cada cliente tiene su propia cuenta y su propio plan.** El consumo se mide por cuenta, no se suma en la cuenta Proveedor.
 - Un cliente que emite poco puede quedarse en **Gratis** (si califica); los demás contratan el plan de su volumen.
-- Si gestionas **más de 2 cuentas de pago**, recibes un **descuento de 10% a 20%** sobre esas cuentas. Te damos un **código promocional** que se aplica al pagar.
+
+Para el cobro de los planes de pago hay dos formas. Elige la que encaje con tu negocio:
+
+| | Cada cliente paga lo suyo | Tú pagas y le facturas al cliente |
+| --- | --- | --- |
+| **Cómo funciona** | El dueño entra al portal con el correo de su cuenta, va a **Configuración → Facturación** y paga con **su tarjeta**. | Suscribes **tu tarjeta** y pagas el plan de cada cliente. Luego le cobras al cliente el plan **junto con tus servicios**, en tu propia factura. |
+| **A nombre de quién sale el cobro** | Del cliente | Tuyo |
+| **Quién cambia de plan o tarjeta** | El cliente, desde su cuenta | Tú, desde tu cuenta |
+| **Descuento de integrador** | Se aplica al plan de cada cliente | Lo recibes tú |
+| **Cómo se activa** | Ya está disponible | Escríbenos por [soporte](https://ecf.mseller.app/support) y lo configuramos |
+
+Muchos proveedores de software usan la segunda forma: el cliente recibe una sola factura (la tuya) y tú controlas que el plan nunca quede sin pagar.
+
+### Descuento para integradores
+
+- Aplica cuando gestionas **3 o más cuentas de pago** (más de 2). Las cuentas en plan Gratis no cuentan.
+- El descuento es de **10% a 20%**, según el volumen que gestionas.
+- Lo pides por [soporte](https://ecf.mseller.app/support). Te damos un **código promocional** para tu empresa.
+- Quien paga el plan escribe el código en la página de pago de Stripe (o en **Administrar facturación**). Si pagas tú, el descuento es tuyo. Si cada cliente paga lo suyo, el descuento **se aplica al plan de cada cliente**.
+
+## Si un cliente deja de pagar
+
+| Situación | Qué pasa |
+| --- | --- |
+| **Falla el cobro** de la tarjeta | La cuenta **conserva su plan y sigue emitiendo** mientras Stripe reintenta el cobro. En el portal aparece un aviso con el botón **Pagar ahora**. |
+| **La suscripción se cancela** (por el cliente, o porque Stripe agotó los reintentos) | Al terminar el período pagado, la cuenta **pasa al plan Gratis**. No se bloquea: puede seguir emitiendo dentro de la cuota de Gratis. |
+| **Comprobantes ya emitidos** | **No se borran.** El XML firmado se conserva al menos **10 años**, como exige la DGII, y sigue disponible en el portal y por el API (dentro de la cuota de su plan), pague o no un plan. |
+
+La cuenta de un cliente nunca se bloquea por falta de pago: cortarle el servicio sería dejarlo sin poder facturar.
 
 ## Developer / Community o Partner Comercial
 
@@ -69,6 +121,8 @@ Todos empiezan como **Developer / Community**. Cuando tengas más de 10 clientes
 
 Los planes se venden por **comprobantes**, pero el API cuenta **requests** (cada llamada). Cada plan incluye unos **4 requests por comprobante**, suficiente para emitirlo y consultar su estado.
 
+Cuentan las llamadas que llevan `X-API-KEY`: envío de e-CF, consulta de estado (individual o en batch) y resumen de facturas. La autenticación y lo que haces en el portal **no** cuentan. La cuota se reinicia el día 1 de cada mes (UTC).
+
 <Callout type="warn">
   **Consultar el estado de un e-CF también consume un request.** Emitir y luego consultar son dos requests.
 </Callout>
@@ -77,7 +131,7 @@ Los planes se venden por **comprobantes**, pero el API cuenta **requests** (cada
 
 - **Reutiliza el token** en lugar de autenticarte en cada llamada.
 - **Consulta por lote** ([consulta en batch](/docs/integration/document-queries#consulta-en-batch)) en vez de un documento a la vez.
-- **No consultes en bucle**: espera unos segundos y detente cuando el estado sea final (Aceptado o Rechazado).
+- **No consultes en bucle**: sigue el [ritmo de consulta recomendado](/docs/integration/document-queries#cada-cuánto-consultar) y detente cuando el estado sea final.
 - Ante fallos temporales, **reintenta con espera creciente** (backoff), no de inmediato.
 
 ## Siguiente paso
