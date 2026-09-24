@@ -1,0 +1,58 @@
+---
+title: "Representación impresa"
+seoTitle: "Representación Impresa del e-CF: QR, Código de Seguridad y Ticket"
+description: "Cómo imprimir un e-CF: qué datos te devuelve MSeller (QR, código de seguridad, fecha de firma), el PDF tamaño carta y cómo usar tu propio formato de ticket."
+---
+
+La representación impresa es la factura en papel (o PDF) que recibe tu cliente. Tienes dos opciones.
+
+<Callout title="En resumen">
+  - Al enviar un e-CF, la respuesta trae **`securityCode`**, **`qr_url`** y **`signedDate`**. Con eso imprimes en **tu propio formato**, por ejemplo un ticket de impresora térmica.
+  - También generamos un **PDF tamaño carta** de cada documento, que descargas desde el portal.
+  - El formato que uses es el que debes presentar a la DGII durante la [certificación](/docs/certification/process#quién-hace-qué).
+</Callout>
+
+## Opción 1: tu propio formato (ticket, recibo, etc.)
+
+Recomendada si tu sistema ya imprime tickets: restaurantes, colmados, tiendas y cualquier punto de venta.
+
+La respuesta del [envío](/docs/integration/documents) llega al instante, sin esperar a la DGII:
+
+```json
+{
+  "ecf": "E320000000123",
+  "securityCode": "fWCZCV",
+  "qr_url": "https://fc.dgii.gov.do/testecf/consultatimbrefc?rncemisor=102320705&encf=E320000000123&montototal=385.68&codigoseguridad=fWCZCV",
+  "signedDate": "14-05-2025 02:57:33"
+}
+```
+
+| Campo | Qué imprimes |
+| --- | --- |
+| `qr_url` | **Genera el código QR** con esta URL, tal cual. No la armes tú: la URL cambia según el tipo de e-CF y el monto. |
+| `securityCode` | El **código de seguridad** (6 caracteres). |
+| `signedDate` | La **fecha y hora de la firma** digital. |
+| `ecf` | El **e-NCF** del comprobante. |
+
+El resto (datos del emisor y del comprador, detalle, ITBIS, totales) viene de tu propia factura.
+
+<Callout type="warn" title="Revisa los requisitos de la DGII">
+  La DGII define qué debe llevar la representación impresa y lo revisa en la certificación. Antes de fijar el diseño de tu ticket, compáralo con el **informe técnico de representación impresa** que publica la DGII en su documentación de e-CF.
+</Callout>
+
+**Imprime sin esperar el estado.** No hace falta que la DGII haya aceptado el documento para entregarlo: consulta el estado en segundo plano ([ver cada cuánto consultar](/docs/integration/document-queries#cada-cuánto-consultar)). Si luego sale **Rechazado**, corriges y emites un documento nuevo.
+
+¿Perdiste la respuesta del envío? La [consulta del documento](/docs/integration/document-queries#consulta-individual) también devuelve `securityCode` y `qr_url`.
+
+## Opción 2: nuestro PDF tamaño carta
+
+MSeller genera un **PDF tamaño carta (Letter)** de cada documento, con QR, código de seguridad y fecha de firma. Lo descargas desde el portal, en la lista de documentos. Es el mismo PDF que usa el asistente de [certificación](/docs/certification/process#paso-6--descargar-pdfs-y-subirlos-al-portal-dgii).
+
+No generamos PDF en formato ticket (80 mm). Para impresora térmica usa la opción 1.
+
+## ¿Y en la certificación?
+
+En el [paso 6 de la certificación](/docs/certification/process#paso-6--descargar-pdfs-y-subirlos-al-portal-dgii) subes a la DGII la representación impresa de los documentos de prueba.
+
+- Si vas a usar **nuestro PDF**, sube los PDFs que genera el asistente.
+- Si vas a usar **tu propio formato**, imprime los documentos de prueba en tu formato (con el `securityCode` y el `qr_url` de cada uno) y sube esos.

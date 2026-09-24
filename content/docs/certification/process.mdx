@@ -13,6 +13,28 @@ Antes de emitir en producción, la DGII debe aprobar a cada negocio como **emiso
   - **¿Tienes varios clientes?** Cada cliente (cada RNC) se certifica **una vez**, desde su propia cuenta.
 </Callout>
 
+## Quién hace qué
+
+En nuestra web decimos que te certificas en **4 pasos**: son los cuatro bloques grandes del recorrido. Abajo está el detalle de los 10 pasos.
+
+| Bloque | Qué incluye | Quién lo hace |
+| --- | --- | --- |
+| 1. Preparar la cuenta | Cargar el certificado y crear la API Key de CerteCF (pasos 1 y 2) | Tú, en MSeller |
+| 2. Postulación | Crear la postulación en la DGII, firmarla con nuestra herramienta y avisarnos (pasos 3 y 4) | El contribuyente en la DGII; la firma, en MSeller |
+| 3. Pruebas y representación impresa | Enviar los documentos de prueba y generar sus PDFs (pasos 5 y 6) | **MSeller, automático.** Tú solo subes los PDFs a la DGII |
+| 4. Cierre | Aprobación de la DGII, URLs de producción, declaración jurada y roles (pasos 7 a 10) | El contribuyente en la DGII y su Oficina Virtual |
+
+- Los pasos **en la DGII** se hacen con el **usuario de la Oficina Virtual del contribuyente**. Los hace el propio negocio, o su proveedor de software si el negocio le da acceso o lo hacen juntos.
+- La **asignación de roles** (paso 10) la hace el **representante legal** desde su Oficina Virtual.
+- **Costo**: MSeller no cobra por la certificación, y la DGII tampoco. Los documentos de prueba usan unos pocos requests de la cuota de tu plan.
+- **Tiempo**: unos **10 minutos** de trabajo. Lo que más tarda es la revisión de la DGII (pasos 7 y 10), y ese plazo lo pone la DGII, no MSeller.
+
+<Callout title="¿Vas a imprimir en otro formato, por ejemplo ticket?">
+  En el paso 6 la DGII revisa la **representación impresa** que vas a usar. Si tu sistema imprime su propio formato (por ejemplo, ticket de impresora térmica), sube ese formato en lugar de nuestro PDF tamaño carta. Ver [Representación impresa](/docs/integration/representacion-impresa).
+</Callout>
+
+## Los 10 pasos
+
 El recorrido tiene 10 pasos. La columna **Dónde** indica si lo haces en MSeller o en la DGII. Si ya cargaste tu certificado en el [paso 2](/docs/getting-started/certificado), el paso 1 solo lo confirma.
 
 | Paso | Qué haces | Dónde |

@@ -22,6 +22,10 @@ Usa el certificado de **uno de tus clientes**. Crea una cuenta con el RNC de ese
 
 Sí, **TesteCF también requiere un `.p12` válido**. No ofrecemos certificados de prueba y uno autogenerado no sirve. Sin certificado, el API responde `412 CERTIFICATE_NOT_CONFIGURED`.
 
+### ¿El certificado está incluido? ¿Cuánto cuesta y cuánto dura?
+
+No está incluido: lo compra el negocio a una entidad de certificación, que fija el precio y la vigencia. Sirve para los tres entornos y te avisamos por correo antes de que venza. Ver [Preguntas sobre el certificado](/docs/getting-started/certificado#preguntas-sobre-el-certificado).
+
 ### ¿Cuánto tarda un cliente en emitir en producción?
 
 Con el `.p12` en mano, la [certificación](/docs/certification/process) toma unos **10 minutos** de tu parte. Después hay que esperar la aprobación de la DGII, que depende del estado del negocio ante la DGII.
@@ -52,11 +56,23 @@ No. En la API, cada llamada se autentica con las credenciales **del cliente** (s
 
 Sí. Cada cliente (cada RNC) se certifica ante la DGII **una vez**, desde su propia cuenta.
 
+### ¿Qué parte de la certificación hacen ustedes?
+
+MSeller envía los documentos de prueba y genera sus PDFs automáticamente, y firma los XML de la postulación y la declaración jurada. En la DGII, con el usuario de la Oficina Virtual del contribuyente, se crea la postulación, se suben los PDFs, se firma la declaración jurada y se asignan los roles. No tiene costo. Ver [Quién hace qué](/docs/certification/process#quién-hace-qué).
+
 ## Planes y pagos
 
 ### ¿Cuánto cuesta?
 
 Hay un plan **Gratis** (hasta 250 comprobantes/mes, solo para micro y pequeñas empresas clasificadas por la DGII) y planes pagos con **precio fijo mensual** por tramo de comprobantes. Ver [Planes y pagos](/docs/getting-started/planes).
+
+### ¿Cómo validan que califico para el plan Gratis?
+
+El negocio declara su clasificación al registrarse. Si no corresponde a una micro o pequeña empresa, te pediremos pasar al plan que le toca. Ver [plan Gratis](/docs/getting-started/planes#cómo-se-valida-que-califico-para-el-plan-gratis).
+
+### ¿Qué pasa si me paso del límite del mes?
+
+**No te subimos de plan solos.** Al agotar los requests del mes, el API responde `429` hasta que cambies de plan o empiece el mes siguiente (día 1, hora UTC). No avisamos antes: lleva tu propio conteo. Ver [¿Qué pasa si me paso del límite?](/docs/getting-started/planes#qué-pasa-si-me-paso-del-límite).
 
 ### ¿Cómo pago?
 
@@ -64,7 +80,11 @@ Con tarjeta, desde **Configuración → Facturación** en el portal. El cobro lo
 
 ### Tengo varios clientes. ¿Quién paga?
 
-**Cada cliente tiene su propio plan**; el consumo se mide por cuenta. Con **más de 2 cuentas de pago** recibes un descuento de **10% a 20%**, y con **más de 10 clientes de pago** puedes firmar como **Partner Comercial** (25% a 30%). Ver [¿Quién paga?](/docs/getting-started/planes#quién-paga-en-un-modelo-multi-tenant).
+**Cada cliente tiene su propio plan y lo paga él mismo**, con su tarjeta, desde su cuenta; el consumo se mide por cuenta. Si prefieres pagar tú, escríbenos. Con **más de 2 cuentas de pago** (3 o más) recibes un descuento de **10% a 20%**, y con **más de 10 clientes de pago** puedes firmar como **Partner Comercial** (25% a 30%). Ver [¿Quién paga?](/docs/getting-started/planes#quién-paga-en-un-modelo-multi-tenant).
+
+### ¿Qué pasa si un cliente deja de pagar?
+
+Si falla el cobro, sigue emitiendo con su plan mientras Stripe reintenta. Si la suscripción se cancela, la cuenta pasa al plan **Gratis**; no se bloquea. Sus comprobantes ya emitidos **no se borran** y se conservan al menos 10 años. Ver [Si un cliente deja de pagar](/docs/getting-started/planes#si-un-cliente-deja-de-pagar).
 
 ### ¿Me dan comprobante fiscal (NCF) por el servicio?
 
@@ -86,7 +106,11 @@ Cualquiera que pueda hacer solicitudes HTTP con JSON. Hay ejemplos en cURL, Java
 
 ### ¿Tienen webhooks para notificar el estado?
 
-**Todavía no.** El estado se consulta con el API. Usa la [consulta en batch](/docs/integration/document-queries#consulta-en-batch) para varios documentos y deja de consultar cuando el estado sea final.
+**Todavía no.** El estado se consulta con el API. Sigue el [ritmo de consulta recomendado](/docs/integration/document-queries#cada-cuánto-consultar), usa la [consulta en batch](/docs/integration/document-queries#consulta-en-batch) para varios documentos y deja de consultar cuando el estado sea final.
+
+### ¿Ustedes entregan el PDF o yo imprimo la factura?
+
+Las dos cosas. El envío te devuelve el `qr_url`, el `securityCode` y la fecha de firma para que imprimas en **tu propio formato** (por ejemplo, ticket de impresora térmica). También generamos un **PDF tamaño carta** que descargas desde el portal. Ver [Representación impresa](/docs/integration/representacion-impresa).
 
 ### ¿Puedo validar un documento sin enviarlo a la DGII?
 
