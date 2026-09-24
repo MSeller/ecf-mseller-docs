@@ -7,7 +7,7 @@ description: Cuánto cuesta MSeller ECF, cómo pagar, quién paga cuando tienes 
 <Callout title="En resumen">
   - Empiezas **gratis**. Cada plan es un **precio fijo mensual** por un tramo de comprobantes.
   - Pagas **con tarjeta** desde **Configuración → Facturación** en el portal.
-  - Con varios clientes, **cada cliente tiene su propio plan** y **lo paga él mismo** desde su cuenta. Con 3 o más cuentas de pago tienes descuento.
+  - Con varios clientes, **cada cliente tiene su propio plan**. Lo paga el cliente o lo pagas tú y se lo facturas. Con 3 o más cuentas de pago tienes descuento.
   - **No hay cambio de plan automático.** Si una cuenta agota su cuota del mes, el API responde `429` hasta que cambie de plan o empiece el mes siguiente.
 </Callout>
 
@@ -31,7 +31,13 @@ Precios y beneficios actualizados en [ecf.mseller.app/precios](https://ecf.msell
 
 ### ¿Cómo se valida que califico para el plan Gratis?
 
-El negocio **declara** su clasificación al registrarse; no pedimos documentos para empezar. Si el volumen o el tipo de negocio no corresponde a una micro o pequeña empresa, te pediremos pasar al plan que le toca.
+El negocio **declara** su clasificación al registrarse; no pedimos documentos para empezar. Además de la clasificación, **evalúa el volumen real del cliente**:
+
+- Cuenta **todos los documentos** que emite en un mes, no solo las facturas de venta: comprobantes de compra, notas de crédito y débito, gastos menores, etc.
+- Mira el **promedio de varios meses**, no un mes suelto.
+- Si ese promedio está **cerca de 250 o por encima** (por ejemplo, entre 200 y 350, con meses que pasan de 250 y otros que no), el cliente **debe estar en un plan de pago**. En Gratis, el mes que se pase la plataforma **dejará de recibir sus documentos** hasta que cambie de plan.
+
+Si el volumen o el tipo de negocio no corresponde a una micro o pequeña empresa, te pediremos pasar al plan que le toca.
 
 ### ¿Qué pasa si me paso del límite?
 
@@ -65,16 +71,26 @@ Si no ves la opción **Facturación** en tu cuenta, el pago en línea aún no es
 Si trabajas con una cuenta **Proveedor** ([ver multi-tenant](/docs/getting-started/multi-tenant)):
 
 - **Cada cliente tiene su propia cuenta y su propio plan.** El consumo se mide por cuenta, no se suma en la cuenta Proveedor.
-- **Cada cliente paga lo suyo.** El dueño entra al portal con el correo de su cuenta, va a **Configuración → Facturación** y paga con **su propia tarjeta**. El cobro y las facturas de Stripe salen a nombre de esa cuenta, no de la tuya.
 - Un cliente que emite poco puede quedarse en **Gratis** (si califica); los demás contratan el plan de su volumen.
-- ¿Prefieres **pagar tú** los planes de tus clientes? Escríbenos por [soporte](https://ecf.mseller.app/support) y lo configuramos. En ese caso el cliente no puede cambiar de plan ni de tarjeta; todo se hace desde tu cuenta.
+
+Para el cobro de los planes de pago hay dos formas. Elige la que encaje con tu negocio:
+
+| | Cada cliente paga lo suyo | Tú pagas y le facturas al cliente |
+| --- | --- | --- |
+| **Cómo funciona** | El dueño entra al portal con el correo de su cuenta, va a **Configuración → Facturación** y paga con **su tarjeta**. | Suscribes **tu tarjeta** y pagas el plan de cada cliente. Luego le cobras al cliente el plan **junto con tus servicios**, en tu propia factura. |
+| **A nombre de quién sale el cobro** | Del cliente | Tuyo |
+| **Quién cambia de plan o tarjeta** | El cliente, desde su cuenta | Tú, desde tu cuenta |
+| **Descuento de integrador** | Se aplica al plan de cada cliente | Lo recibes tú |
+| **Cómo se activa** | Ya está disponible | Escríbenos por [soporte](https://ecf.mseller.app/support) y lo configuramos |
+
+Muchos proveedores de software usan la segunda forma: el cliente recibe una sola factura (la tuya) y tú controlas que el plan nunca quede sin pagar.
 
 ### Descuento para integradores
 
 - Aplica cuando gestionas **3 o más cuentas de pago** (más de 2). Las cuentas en plan Gratis no cuentan.
 - El descuento es de **10% a 20%**, según el volumen que gestionas.
 - Lo pides por [soporte](https://ecf.mseller.app/support). Te damos un **código promocional** para tu empresa.
-- Quien paga el plan escribe el código en la página de pago de Stripe (o en **Administrar facturación**). Si cada cliente paga lo suyo, el descuento **se aplica al plan de cada cliente**, no se te paga a ti.
+- Quien paga el plan escribe el código en la página de pago de Stripe (o en **Administrar facturación**). Si pagas tú, el descuento es tuyo. Si cada cliente paga lo suyo, el descuento **se aplica al plan de cada cliente**.
 
 ## Si un cliente deja de pagar
 

@@ -9,7 +9,6 @@ La representación impresa es la factura en papel (o PDF) que recibe tu cliente.
 <Callout title="En resumen">
   - Al enviar un e-CF, la respuesta trae **`securityCode`**, **`qr_url`** y **`signedDate`**. Con eso imprimes en **tu propio formato**, por ejemplo un ticket de impresora térmica.
   - También generamos un **PDF tamaño carta** de cada documento, que descargas desde el portal.
-  - El formato que uses es el que debes presentar a la DGII durante la [certificación](/docs/certification/process#quién-hace-qué).
 </Callout>
 
 ## Opción 1: tu propio formato (ticket, recibo, etc.)
@@ -37,7 +36,7 @@ La respuesta del [envío](/docs/integration/documents) llega al instante, sin es
 El resto (datos del emisor y del comprador, detalle, ITBIS, totales) viene de tu propia factura.
 
 <Callout type="warn" title="Revisa los requisitos de la DGII">
-  La DGII define qué debe llevar la representación impresa y lo revisa en la certificación. Antes de fijar el diseño de tu ticket, compáralo con el **informe técnico de representación impresa** que publica la DGII en su documentación de e-CF.
+  La DGII define qué debe llevar la representación impresa. Antes de fijar el diseño de tu ticket, compáralo con el **informe técnico de representación impresa** que publica la DGII en su documentación de e-CF.
 </Callout>
 
 **Imprime sin esperar el estado.** No hace falta que la DGII haya aceptado el documento para entregarlo: consulta el estado en segundo plano ([ver cada cuánto consultar](/docs/integration/document-queries#cada-cuánto-consultar)). Si luego sale **Rechazado**, corriges y emites un documento nuevo.
@@ -46,13 +45,6 @@ El resto (datos del emisor y del comprador, detalle, ITBIS, totales) viene de tu
 
 ## Opción 2: nuestro PDF tamaño carta
 
-MSeller genera un **PDF tamaño carta (Letter)** de cada documento, con QR, código de seguridad y fecha de firma. Lo descargas desde el portal, en la lista de documentos. Es el mismo PDF que usa el asistente de [certificación](/docs/certification/process#paso-6--descargar-pdfs-y-subirlos-al-portal-dgii).
+MSeller genera un **PDF tamaño carta (Letter)** de cada documento, con QR, código de seguridad y fecha de firma. Lo descargas desde el portal, en la lista de documentos.
 
 No generamos PDF en formato ticket (80 mm). Para impresora térmica usa la opción 1.
-
-## ¿Y en la certificación?
-
-En el [paso 6 de la certificación](/docs/certification/process#paso-6--descargar-pdfs-y-subirlos-al-portal-dgii) subes a la DGII la representación impresa de los documentos de prueba.
-
-- Si vas a usar **nuestro PDF**, sube los PDFs que genera el asistente.
-- Si vas a usar **tu propio formato**, imprime los documentos de prueba en tu formato (con el `securityCode` y el `qr_url` de cada uno) y sube esos.
