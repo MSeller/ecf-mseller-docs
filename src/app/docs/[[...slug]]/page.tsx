@@ -9,6 +9,7 @@ import { notFound } from 'next/navigation';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { getMDXComponents } from '@/mdx-components';
 import { generateHowToSchema, generateVideoSchema } from '../../schema';
+import { PageActions } from '@/components/ai/page-actions';
 
 function JsonLd({ data }: { data: Record<string, unknown> }) {
   return (
@@ -41,6 +42,7 @@ export default async function Page(props: {
       <DocsPage toc={page.data.toc} full={page.data.full}>
         <DocsTitle>{page.data.title}</DocsTitle>
         <DocsDescription>{page.data.description}</DocsDescription>
+        <PageActions url={page.url} />
         <DocsBody>
           <MDXContent
             components={getMDXComponents({

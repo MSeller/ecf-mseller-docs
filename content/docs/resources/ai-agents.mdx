@@ -1,0 +1,81 @@
+---
+title: "Usar con IA"
+seoTitle: "Documentación e-CF para ChatGPT, Claude y Cursor — MSeller ECF"
+description: "Dale toda la documentación de MSeller ECF a tu asistente de IA (ChatGPT, Claude, Cursor, Copilot) en un solo archivo y deja que te ayude a integrar la facturación electrónica."
+---
+
+Publicamos toda la documentación en **Markdown**, el formato que mejor entienden los asistentes de IA. Así tu agente trabaja con la información real del API (endpoints, campos del JSON, códigos de error) en lugar de adivinar.
+
+<Callout title="En resumen">
+  - **Toda la documentación en un archivo**: [`llms-full.txt`](https://docs.ecf.mseller.app/llms-full.txt). Pásaselo a tu asistente y pregúntale lo que necesites.
+  - **Una sola página**: agrega `.md` al final de su URL, o usa los botones **Copiar para IA**, **Abrir en ChatGPT** y **Abrir en Claude** debajo del título de cada página.
+  - **Índice para agentes**: [`llms.txt`](https://docs.ecf.mseller.app/llms.txt), según el estándar [llmstxt.org](https://llmstxt.org).
+</Callout>
+
+## Los archivos
+
+| Archivo | Para qué sirve |
+| --- | --- |
+| [`/llms-full.txt`](https://docs.ecf.mseller.app/llms-full.txt) | Toda la documentación en un solo archivo Markdown. Es lo más fácil: una URL y tu agente tiene todo el contexto. |
+| [`/llms.txt`](https://docs.ecf.mseller.app/llms.txt) | Índice de páginas con una descripción de cada una. Los agentes lo usan para leer solo lo que necesitan. |
+| `/docs/<página>.md` | Cualquier página en Markdown. Por ejemplo: [`/docs/integration/authentication.md`](https://docs.ecf.mseller.app/docs/integration/authentication.md). |
+
+Se generan automáticamente a partir de esta documentación, así que siempre están al día.
+
+## Cómo usarlo
+
+<Tabs items={["ChatGPT / Claude", "Cursor", "Claude Code / agentes", "Copilot / otros"]}>
+<TabsContent value="ChatGPT / Claude">
+
+Pega este mensaje en una conversación nueva:
+
+```text
+Lee la documentación de MSeller ECF en https://docs.ecf.mseller.app/llms-full.txt
+y ayúdame a enviar una Factura de Consumo (tipo 32) desde mi sistema en Node.js.
+```
+
+Si tu asistente no puede abrir enlaces, descarga [`llms-full.txt`](https://docs.ecf.mseller.app/llms-full.txt) y adjúntalo como archivo.
+
+</TabsContent>
+<TabsContent value="Cursor">
+
+Agrega la documentación como fuente para usarla en cualquier chat:
+
+1. Abre **Cursor Settings → Indexing & Docs → Add Doc**.
+2. Pega `https://docs.ecf.mseller.app/llms-full.txt` y ponle de nombre **MSeller ECF**.
+3. En el chat, escribe `@MSeller ECF` y haz tu pregunta.
+
+</TabsContent>
+<TabsContent value="Claude Code / agentes">
+
+Indícale a tu agente que lea la documentación antes de escribir código. Por ejemplo, en el `CLAUDE.md` o `AGENTS.md` de tu proyecto:
+
+```markdown
+## Facturación electrónica (e-CF)
+
+Usamos el API de MSeller ECF. Antes de cambiar código de facturación, lee
+https://docs.ecf.mseller.app/llms.txt y abre las páginas que necesites
+(o https://docs.ecf.mseller.app/llms-full.txt para todo el contexto).
+```
+
+</TabsContent>
+<TabsContent value="Copilot / otros">
+
+Cualquier asistente que pueda leer una URL o un archivo sirve:
+
+- **Con acceso web**: dale la URL `https://docs.ecf.mseller.app/llms-full.txt`.
+- **Sin acceso web**: descarga el archivo y adjúntalo, o cópialo en tu repositorio (por ejemplo `docs/mseller-ecf.md`) para que el asistente lo encuentre.
+
+</TabsContent>
+</Tabs>
+
+## Ideas de preguntas
+
+- "Genera el JSON de una Factura de Crédito Fiscal (tipo 31) con dos productos e ITBIS 18%."
+- "Escribe una función en C# que se autentique, reutilice el token y envíe un e-CF."
+- "¿Qué significa el estado `Error` al consultar un documento y cómo debo reintentar?"
+- "Revisa este JSON y dime qué campos faltan para la DGII." (pega tu JSON)
+
+<Callout type="warn" title="Revisa lo que genera la IA">
+  Los asistentes pueden equivocarse. Prueba siempre en **TesteCF** antes de pasar a producción, y nunca pegues tu **API Key**, tu contraseña ni tu certificado `.p12` en un chat de IA.
+</Callout>
