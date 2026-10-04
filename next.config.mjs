@@ -12,6 +12,9 @@ const config = {
         destination: "/docs",
         locale: false,
       },
+      // Plain-Markdown version of each page for LLM agents.
+      { source: "/docs.md", destination: "/llms.mdx" },
+      { source: "/docs/:path*.md", destination: "/llms.mdx/:path*" },
     ];
   },
 };

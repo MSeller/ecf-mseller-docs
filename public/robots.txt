@@ -10,7 +10,8 @@ Sitemap: https://docs.ecf.mseller.app/sitemap.xml
 
 # LLMs and AI agents
 # See https://llmstxt.org
-# Summary for AI agents at /llms.txt
+# Index for AI agents at /llms.txt, full docs at /llms-full.txt,
+# and any page as Markdown by appending .md to its URL
 User-agent: ChatGPT-User
 Allow: /
 
