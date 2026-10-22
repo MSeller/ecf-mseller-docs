@@ -10,19 +10,19 @@ Después de [enviar un e-CF](/docs/integration/documents), consulta aquí si la 
   - **Un documento**: `GET /{entorno}/documentos-ecf?ecf={eNCF}` — ver [consulta individual](#consulta-individual).
   - **Varios documentos**: usa la [consulta en batch](#consulta-en-batch); es una sola llamada.
   - Espera unos segundos después del envío y **deja de consultar** cuando el estado sea final (Aceptado o Rechazado).
-  - **No hay webhooks por ahora.** Cada consulta consume un request de tu cuota.
+  - Cada consulta consume un request de tu cuota. Para no consultar, usa los [webhooks](/docs/integration/webhooks): te avisamos de cada cambio de estado (planes de pago).
 </Callout>
 
 ## Cada cuánto consultar
 
-No hay webhooks: tu sistema pregunta. Este ritmo es suficiente y cabe en los ~4 requests por comprobante que incluye cada plan:
+Si usas [webhooks](/docs/integration/webhooks), no necesitas este ritmo: te avisamos de cada cambio y solo te queda una revisión diaria de los pendientes. Si consultas tú, este ritmo es suficiente y cabe en los ~4 requests por comprobante que incluye cada plan:
 
 1. **Primera consulta: 3 a 5 segundos** después del envío. La mayoría de los documentos ya tienen respuesta de la DGII.
 2. Si sigue en proceso, **vuelve a consultar a los 30 segundos** y luego **a los 2 minutos**.
 3. Si aún no hay respuesta final, deja el documento como **pendiente** y revísalo en una **consulta en batch cada 15 a 30 minutos**, junto con los demás pendientes (hasta 100 por llamada).
 4. **Deja de consultar** en cuanto el estado sea final: **Aceptado**, **Aceptado Condicional** o **Rechazado**.
 
-Mientras la DGII no responde, el documento puede aparecer **En Cola**, **En Proceso** o **Enviado a DGII**. No lo reenvíes: MSeller reintenta por su cuenta los documentos que se quedan atascados.
+Mientras la DGII no responde, el documento puede aparecer **En Cola**, **En Proceso** o **Enviado a la DGII**. No lo reenvíes: MSeller reintenta por su cuenta los documentos que se quedan atascados.
 
 <Callout type="warn" title="No bloquees la venta esperando a la DGII">
   El `securityCode` y el `qr_url` llegan en la respuesta del envío. Con ellos ya puedes imprimir la factura ([ver representación impresa](/docs/integration/representacion-impresa)). Consulta el estado en segundo plano.

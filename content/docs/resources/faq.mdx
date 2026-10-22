@@ -106,7 +106,9 @@ Cualquiera que pueda hacer solicitudes HTTP con JSON. Hay ejemplos en cURL, Java
 
 ### ¿Tienen webhooks para notificar el estado?
 
-**Todavía no.** El estado se consulta con el API. Sigue el [ritmo de consulta recomendado](/docs/integration/document-queries#cada-cuánto-consultar), usa la [consulta en batch](/docs/integration/document-queries#consulta-en-batch) para varios documentos y deja de consultar cuando el estado sea final.
+**Sí.** Configúralos en **Configuración → Webhooks**: te enviamos un `POST` firmado con cada cambio de estado de tus e-CF (planes de pago), con las facturas que te envían y con las aprobaciones comerciales de tus clientes. No consumen requests de tu cuota. Ver [Webhooks](/docs/integration/webhooks).
+
+Si prefieres consultar, sigue el [ritmo de consulta recomendado](/docs/integration/document-queries#cada-cuánto-consultar) y usa la [consulta en batch](/docs/integration/document-queries#consulta-en-batch) para varios documentos.
 
 ### ¿Ustedes entregan el PDF o yo imprimo la factura?
 

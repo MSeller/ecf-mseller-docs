@@ -28,6 +28,7 @@ Precios y beneficios actualizados en [ecf.mseller.app/precios](https://ecf.msell
 - **No hay cargos por excedente ni cambio de plan automático.** Si tu volumen crece, cambias tú de plan desde **Configuración → Facturación**. Ver [¿Qué pasa si me paso del límite?](#qué-pasa-si-me-paso-del-límite).
 - El plan **Gratis** es solo para **microempresas y pequeñas empresas clasificadas por la DGII**, sin fecha de vencimiento. Es el tramo para ese volumen, no un saldo de regalo que se sume a un plan pago.
 - Los planes que ya existían (por ejemplo, **Estándar**) siguen funcionando con sus condiciones.
+- Los [webhooks](/docs/integration/webhooks) de **facturas recibidas** y **aprobaciones comerciales** están en todos los planes. El de **cambio de estado** de tus e-CF está en todos los planes **de pago**.
 
 ### ¿Cómo se valida que califico para el plan Gratis?
 
@@ -132,6 +133,7 @@ Cuentan las llamadas que llevan `X-API-KEY`: envío de e-CF, consulta de estado 
 - **Reutiliza el token** en lugar de autenticarte en cada llamada.
 - **Consulta por lote** ([consulta en batch](/docs/integration/document-queries#consulta-en-batch)) en vez de un documento a la vez.
 - **No consultes en bucle**: sigue el [ritmo de consulta recomendado](/docs/integration/document-queries#cada-cuánto-consultar) y detente cuando el estado sea final.
+- **Usa [webhooks](/docs/integration/webhooks)** en los planes de pago: te avisamos de cada cambio de estado y **no consumen requests**.
 - Ante fallos temporales, **reintenta con espera creciente** (backoff), no de inmediato.
 
 ## Siguiente paso

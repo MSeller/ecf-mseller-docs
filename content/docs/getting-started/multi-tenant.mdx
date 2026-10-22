@@ -132,6 +132,13 @@ En las cuentas cuyo dueño **te autorizó** desde su portal no aparece: su contr
 - Para dar de baja una llave, pulsa el ícono de papelera → **Revocar**. La integración que la use deja de funcionar de inmediato.
 - Puedes tener hasta **10 API Keys por cliente**. Si llegas al límite, revoca una para crear otra.
 
+### Webhooks
+
+La misma pantalla incluye los [webhooks](/docs/integration/webhooks) del cliente: su endpoint, sus eventos y el historial de entregas, por entorno.
+
+- Cada cliente tiene **su propio endpoint y su propio secreto**. Si quieres recibir los eventos de todos tus clientes en un solo servidor, usa la misma URL en cada uno y distingue la cuenta por el campo `rnc` del cuerpo.
+- **Cambio de estado** depende del **plan del cliente**, no del tuyo. Si el cliente está en Gratis, desde ahí mismo puedes mejorar su plan y pagarlo tú.
+
 ### Lo que el Proveedor no puede hacer
 
 Por seguridad del cliente:
