@@ -12,6 +12,7 @@ En vez de preguntarle al API cada cierto tiempo, MSeller te **avisa** a ti: cuan
   - Cada envío va firmado con **HMAC-SHA256**. [Valida la firma](#valida-la-firma) antes de confiar en el contenido.
   - Responde **2xx en menos de 10 segundos**. Si no, reintentamos hasta 5 veces en unas 2 h 40 min.
   - Los webhooks **no consumen** requests de tu cuota.
+  - Pruébalos al instante con [**Probar webhook**](#prueba-tu-webhook), sin esperar un documento real.
 </Callout>
 
 <Callout type="warn" title="Cambio de estado: solo para clientes de pago">
@@ -59,6 +60,28 @@ Los cambios de configuración se aplican en **menos de un minuto**.
   Desde tu cuenta **Proveedor** configuras el webhook de cada cliente en su pantalla de gestión, con su propio endpoint y su propio secreto. Ver [Varios clientes](/docs/getting-started/multi-tenant#webhooks).
 </Callout>
 
+## Prueba tu webhook
+
+No necesitas esperar a que llegue o cambie un documento real. En **Configuración → Webhooks**, debajo de tu configuración, está **Probar webhook**: envía eventos con **datos de prueba** a tu endpoint cuando quieras.
+
+- **Enviar prueba**: elige el evento, ajusta los datos si quieres (estados, e-NCF, monto, RNC, mensaje de la DGII, aprobación o rechazo) y envíalo. Verás al instante **exactamente lo que enviamos** (encabezados con la firma y el cuerpo) y **lo que respondió tu endpoint** (código HTTP, cuerpo y tiempo de respuesta).
+- **Simular ciclo completo** (Cambio de estado): envía la secuencia de un documento — por ejemplo `En Cola → Enviado a la DGII → Aceptado`, o un rechazo o un error — con unos segundos entre cada paso. Pasa por la misma cola que los eventos reales, con sus [reintentos](#reintentos), y lo ves llegar en **Entregas recientes**.
+
+Las pruebas van firmadas con tu secreto real, así que sirven para comprobar tu [validación de firma](#valida-la-firma). Puedes probar **los tres eventos en cualquier plan**, incluido **Cambio de estado**, aunque recibirlo de verdad requiere un plan de pago.
+
+<Callout type="warn" title="Ignora los eventos de prueba en producción">
+  Los eventos de prueba traen `"test": true` en el cuerpo y el encabezado `X-Ecf-Test: true`. Sus datos son inventados: **no los registres como comprobantes reales**. Si pruebas en el entorno de Producción, el evento llega a tu endpoint real.
+
+  ```js
+  if (event.test) {
+    // Prueba desde el portal: valida y responde 200, pero no la guardes
+    return res.sendStatus(200)
+  }
+  ```
+</Callout>
+
+Puedes enviar hasta **10 eventos de prueba por minuto** por entorno. Necesitas tener el webhook configurado y guardado; también funciona si lo tienes pausado.
+
 ## Lo que enviamos
 
 Cada evento es un `POST` con cuerpo JSON y estos encabezados:
@@ -70,8 +93,9 @@ Cada evento es un `POST` con cuerpo JSON y estos encabezados:
 | `X-Ecf-Delivery-Id` | Identificador único de la entrega. Se repite en los reintentos: úsalo para descartar duplicados |
 | `X-Ecf-Timestamp` | Momento del envío, en segundos Unix |
 | `X-Ecf-Signature` | `t={timestamp},sha256={firma}`. Ver [Valida la firma](#valida-la-firma) |
+| `X-Ecf-Test` | Solo en eventos de [prueba](#prueba-tu-webhook): `true` |
 
-Todos los cuerpos traen `deliveryId`, `eventType`, `eNCF`, `rnc` (la cuenta a la que pertenece el evento), `environment`, `timestamp` y `attempt` (el número de intento, empieza en 1).
+Todos los cuerpos traen `deliveryId`, `eventType`, `eNCF`, `rnc` (la cuenta a la que pertenece el evento), `environment`, `timestamp` y `attempt` (el número de intento, empieza en 1). Los eventos de [prueba](#prueba-tu-webhook) traen además `"test": true`; los reales nunca lo llevan.
 
 <Tabs items={["Cambio de estado", "Factura recibida", "Aprobación comercial"]}>
 <TabsContent value="Cambio de estado">
@@ -333,7 +357,7 @@ Los webhooks te ahorran consultas, pero si tu servidor estuvo caído más de lo 
 
 ### ¿Puedo probar sin exponer mi servidor?
 
-Sí. Configura el webhook en **Pruebas** (TesteCF) apuntando a un servicio de inspección de peticiones o a un túnel hacia tu máquina, y envía documentos de prueba. Lo que configures en Pruebas no afecta a Producción.
+Sí. Configura el webhook en **Pruebas** (TesteCF) apuntando a un servicio de inspección de peticiones o a un túnel hacia tu máquina, y usa [Probar webhook](#prueba-tu-webhook) para enviarle eventos al momento. Lo que configures en Pruebas no afecta a Producción.
 
 ### ¿Por qué una entrega dice "No enviado"?
 
