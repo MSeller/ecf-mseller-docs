@@ -1077,15 +1077,20 @@ MSeller almacena **todos los documentos extendidos** de facturas de consumo por 
 
 ## Estados de los documentos
 
-Los documentos enviados a la plataforma pueden tener los siguientes estados:
+Los documentos enviados a la plataforma pueden tener los siguientes estados (el valor exacto del campo `status`):
 
-| Estado     | Descripción                                                          |
-| ---------- | -------------------------------------------------------------------- |
-| RECIBIDO   | El documento ha sido recibido pero aún no ha sido procesado          |
-| PROCESANDO | El documento está siendo procesado y validado                        |
-| ACEPTADO   | El documento ha sido validado y aceptado correctamente               |
-| RECHAZADO  | El documento ha sido rechazado por errores en su formato o contenido |
-| ERROR      | Ha ocurrido un error durante el procesamiento del documento          |
+| Estado | Descripción |
+| --- | --- |
+| `En Cola` | MSeller recibió el documento y lo puso en cola para enviarlo a la DGII |
+| `Enviado a la DGII` | Lo enviamos; la DGII aún no responde |
+| `En Proceso` | La DGII lo está procesando |
+| `Aceptado` | La DGII lo aceptó |
+| `Aceptado Condicional` | La DGII lo aceptó con observaciones |
+| `Rechazado` | La DGII lo rechazó por errores en su formato o contenido |
+| `No encontrado` | La DGII no encuentra el envío |
+| `Error` | No se pudo enviar a la DGII después de reintentar |
+
+Puedes [consultar](/docs/integration/document-queries) el estado o recibir cada cambio por [webhook](/docs/integration/webhooks).
 
 ## Flujo de procesamiento asíncrono
 

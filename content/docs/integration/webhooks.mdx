@@ -1,0 +1,344 @@
+---
+title: "Webhooks"
+seoTitle: "Webhooks de e-CF: Notificaciones de Estado de la DGII en Tiempo Real"
+description: "Recibe en tu sistema cada cambio de estado de tus e-CF, las facturas que te envían y las aprobaciones comerciales, sin consultar el API. Con ejemplos y validación de firma."
+---
+
+En vez de preguntarle al API cada cierto tiempo, MSeller te **avisa** a ti: cuando pasa algo con tus comprobantes, enviamos un `POST` con un JSON firmado a la URL que configures.
+
+<Callout title="En resumen">
+  - Configúralo en el portal: **Configuración → Webhooks**. Un endpoint por entorno (Pruebas, Certificación, Producción).
+  - Tres eventos: **Factura recibida**, **Aprobación comercial** y **Cambio de estado** (este último, **solo para clientes de pago**).
+  - Cada envío va firmado con **HMAC-SHA256**. [Valida la firma](#valida-la-firma) antes de confiar en el contenido.
+  - Responde **2xx en menos de 10 segundos**. Si no, reintentamos hasta 5 veces en unas 2 h 40 min.
+  - Los webhooks **no consumen** requests de tu cuota.
+</Callout>
+
+<Callout type="warn" title="Cambio de estado: solo para clientes de pago">
+  El webhook de **Cambio de estado** (`DOCUMENT_STATUS_UPDATE`) está disponible **únicamente en los planes de pago**. En el plan **Gratis** puedes usar los webhooks de **Factura recibida** y **Aprobación comercial**, y consultar el estado de tus e-CF con la [consulta de e-CF](/docs/integration/document-queries). Para activarlo, [mejora tu plan](/docs/getting-started/planes) desde **Configuración → Facturación**.
+</Callout>
+
+## Eventos
+
+| Evento | Cuándo llega | Qué trae | Planes |
+| --- | --- | --- | --- |
+| `DOCUMENT_STATUS_UPDATE` — **Cambio de estado** | Cada vez que cambia el estado de un e-CF que **emitiste** | El estado anterior, el nuevo, los mensajes de la DGII y el `trackId` | De pago |
+| `INCOMING_INVOICE` — **Factura recibida** | Un proveedor te envió un e-CF y lo recibimos a tu nombre | El e-CF completo en JSON | Todos |
+| `COMMERCIAL_APPROVAL` — **Aprobación comercial** | Tu cliente aprobó o rechazó comercialmente un e-CF que emitiste | La aprobación (ACECF) en JSON | Todos |
+
+**Cambio de estado** está incluido en todos los planes de pago (todos menos Gratis). Si tu cuenta pasa a Gratis, dejamos de enviarlo y lo quitamos de tu configuración. Ver [Planes y pagos](/docs/getting-started/planes).
+
+## Configura tu webhook
+
+<Steps>
+<Step>
+### Abre la configuración
+
+En el [portal](https://ecf.mseller.app), ve a **Configuración → Webhooks** y elige el entorno: **Pruebas** (TesteCF), **Certificación** (CerteCF) o **Producción** (eCF). Cada entorno tiene su propio endpoint y su propio secreto, así que puedes probar con un servidor de pruebas sin tocar el de producción.
+</Step>
+<Step>
+### Indica tu endpoint
+
+Escribe la URL que recibirá los eventos. Debe ser `https://` y públicamente accesible: no se permiten `localhost`, IPs privadas ni rangos reservados.
+</Step>
+<Step>
+### Elige los eventos
+
+Marca los eventos que quieres recibir. Con **Cambio de estado** puedes elegir además **qué estados** te interesan (por ejemplo, solo **Aceptado** y **Rechazado**). Sin selección, recibes todos.
+</Step>
+<Step>
+### Guarda tu secreto
+
+Al crear el webhook te mostramos el **secreto de firma una sola vez**. Cópialo y guárdalo en tu servidor; lo necesitas para [validar la firma](#valida-la-firma). Si lo pierdes, genera uno nuevo con **Generar un secreto nuevo al guardar**.
+</Step>
+</Steps>
+
+Los cambios de configuración se aplican en **menos de un minuto**.
+
+<Callout title="¿Gestionas varios clientes?">
+  Desde tu cuenta **Proveedor** configuras el webhook de cada cliente en su pantalla de gestión, con su propio endpoint y su propio secreto. Ver [Varios clientes](/docs/getting-started/multi-tenant#webhooks).
+</Callout>
+
+## Lo que enviamos
+
+Cada evento es un `POST` con cuerpo JSON y estos encabezados:
+
+| Encabezado | Contenido |
+| --- | --- |
+| `Content-Type` | `application/json` |
+| `X-Ecf-Event` | El evento: `DOCUMENT_STATUS_UPDATE`, `INCOMING_INVOICE` o `COMMERCIAL_APPROVAL` |
+| `X-Ecf-Delivery-Id` | Identificador único de la entrega. Se repite en los reintentos: úsalo para descartar duplicados |
+| `X-Ecf-Timestamp` | Momento del envío, en segundos Unix |
+| `X-Ecf-Signature` | `t={timestamp},sha256={firma}`. Ver [Valida la firma](#valida-la-firma) |
+
+Todos los cuerpos traen `deliveryId`, `eventType`, `eNCF`, `rnc` (la cuenta a la que pertenece el evento), `environment`, `timestamp` y `attempt` (el número de intento, empieza en 1).
+
+<Tabs items={["Cambio de estado", "Factura recibida", "Aprobación comercial"]}>
+<TabsContent value="Cambio de estado">
+
+<Callout type="warn">Solo para clientes en un plan de pago.</Callout>
+
+```json
+{
+  "deliveryId": "6f1c2e0a-3b5d-4c8e-9a71-2f4d8b6e1c90",
+  "eventType": "DOCUMENT_STATUS_UPDATE",
+  "eNCF": "E310000000123",
+  "rnc": "131880681",
+  "environment": "eCF",
+  "timestamp": "2026-10-21T14:32:05.120Z",
+  "attempt": 1,
+  "previousStatus": "Enviado a la DGII",
+  "status": "Rechazado",
+  "changedAt": "2026-10-21T14:32:04.870Z",
+  "documentType": "Factura de Crédito Fiscal Electrónico",
+  "trackId": "a1b2c3d4-0000-4e5f-8a9b-1234567890ab",
+  "buyerRnc": "101010101",
+  "invoiceTotal": 1180,
+  "dgiiMessages": [
+    { "codigo": "2", "valor": "El RNC del comprador no es válido." }
+  ],
+  "links": {
+    "status": "/documentos-ecf/status/batch",
+    "signedXml": "/documentos-ecf?file=131880681%2F...%2FE310000000123.xml"
+  }
+}
+```
+
+- `previousStatus` viene **vacío** (`""`) cuando el documento es nuevo.
+- `dgiiMessages` solo aparece cuando la DGII envió mensajes con ese estado.
+- `links.signedXml` aparece cuando el documento tiene su XML firmado guardado. Es una ruta de tu API. Llámala con tu token y tu API Key, igual que una [consulta](/docs/integration/document-queries), para obtener un enlace temporal al XML firmado: `https://ecf.api.mseller.app/{entorno}{links.signedXml}`. Esa llamada sí consume un request.
+
+</TabsContent>
+<TabsContent value="Factura recibida">
+
+```json
+{
+  "deliveryId": "0b7f4c61-9e2a-4d3b-8c15-6a0e9f2d7b44",
+  "eventType": "INCOMING_INVOICE",
+  "eNCF": "E310000004567",
+  "rnc": "131880681",
+  "environment": "eCF",
+  "timestamp": "2026-10-21T15:10:42.008Z",
+  "attempt": 1,
+  "document": {
+    "ECF": {
+      "Encabezado": {
+        "IdDoc": { "TipoeCF": "31", "eNCF": "E310000004567" },
+        "Emisor": { "RNCEmisor": "101010101", "RazonSocialEmisor": "Proveedor SRL" },
+        "Totales": { "MontoTotal": "1180.00" }
+      }
+    }
+  }
+}
+```
+
+`document` es el e-CF tal como lo recibimos, convertido de XML a JSON con los mismos nombres de campo de la DGII. Solo te enviamos los e-CF **recibidos**: los rechazados en la recepción (firma inválida, duplicados) no generan este evento.
+
+</TabsContent>
+<TabsContent value="Aprobación comercial">
+
+```json
+{
+  "deliveryId": "c2d9e7a0-5f1b-4e6c-9d38-7b2a1e0f4c55",
+  "eventType": "COMMERCIAL_APPROVAL",
+  "eNCF": "E310000000123",
+  "rnc": "131880681",
+  "environment": "eCF",
+  "timestamp": "2026-10-22T09:01:17.443Z",
+  "attempt": 1,
+  "document": {
+    "ACECF": {
+      "DetalleAprobacionComercial": {
+        "RNCEmisor": "131880681",
+        "eNCF": "E310000000123",
+        "RNCComprador": "101010101",
+        "Estado": "1"
+      }
+    }
+  }
+}
+```
+
+`document` es la aprobación comercial (ACECF) que envió tu cliente, en JSON. `Estado` es `1` si la aprobó y `2` si la rechazó.
+
+</TabsContent>
+</Tabs>
+
+## Estados que se notifican
+
+`status` y `previousStatus` usan los mismos valores que la [consulta de e-CF](/docs/integration/document-queries):
+
+| Estado | Qué significa | ¿Final? |
+| --- | --- | --- |
+| `En Cola` | MSeller recibió el documento y lo puso en cola para enviarlo | No |
+| `Enviado a la DGII` | Lo enviamos; la DGII aún no responde | No |
+| `En Proceso` | La DGII lo está procesando | No |
+| `Aceptado` | La DGII lo aceptó | Sí |
+| `Aceptado Condicional` | La DGII lo aceptó con observaciones (ver `dgiiMessages`) | Sí |
+| `Rechazado` | La DGII lo rechazó (ver `dgiiMessages`) | Sí |
+| `No encontrado` | La DGII no encuentra el envío | No |
+| `Error` | No pudimos enviarlo después de reintentar | No |
+
+Algunas cosas que conviene saber:
+
+- **Solo enviamos cambios reales.** Si el estado se vuelve a guardar igual (una nueva consulta a la DGII, por ejemplo), no hay evento.
+- **No te alarmamos por errores pasajeros.** Si un envío falla y MSeller lo reintenta, el `Error` solo te llega cuando se agotan los reintentos. Si un reintento sale bien, ves directamente el estado bueno.
+- **El orden no está garantizado.** Si dos cambios ocurren muy seguidos pueden llegar en otro orden. Compara `changedAt` y quédate con el más reciente.
+- Si reenvías un documento **Rechazado** o con **Error**, vuelve a `En Cola` (o a `En Proceso` si usas el reintento del API), y también recibes ese cambio.
+
+## Valida la firma
+
+Cualquiera que conozca tu URL puede enviarle un `POST`. Antes de usar el contenido, comprueba que lo enviamos nosotros:
+
+1. Lee `t` y `sha256` del encabezado `X-Ecf-Signature`.
+2. Calcula `HMAC-SHA256(secreto, "{t}.{cuerpo}")` en hexadecimal, con el **cuerpo exacto** que recibiste (antes de parsearlo como JSON).
+3. Compáralo con `sha256` en tiempo constante.
+4. Rechaza firmas con más de 5 minutos de antigüedad, para que nadie pueda reenviarte un evento viejo.
+
+<Tabs items={["JavaScript", "C#", "PHP"]}>
+<TabsContent value="JavaScript">
+
+```js
+import crypto from 'node:crypto'
+import express from 'express'
+
+const app = express()
+
+// express.raw: necesitas el cuerpo exacto para calcular la firma
+app.post('/webhooks/ecf', express.raw({ type: 'application/json' }), (req, res) => {
+  const rawBody = req.body.toString('utf8')
+
+  if (!isValidSignature(rawBody, req.get('X-Ecf-Signature'), process.env.ECF_WEBHOOK_SECRET)) {
+    return res.sendStatus(401)
+  }
+
+  res.sendStatus(200) // responde primero...
+  handleEvent(JSON.parse(rawBody)) // ...y procesa después
+})
+
+function isValidSignature(rawBody, signatureHeader = '', secret) {
+  const { t, sha256 = '' } = Object.fromEntries(
+    signatureHeader.split(',').map((part) => part.split('='))
+  )
+  if (!t || Math.abs(Date.now() / 1000 - Number(t)) > 300) return false
+
+  const expected = Buffer.from(
+    crypto.createHmac('sha256', secret).update(`${t}.${rawBody}`).digest('hex')
+  )
+  const received = Buffer.from(sha256)
+  // timingSafeEqual lanza un error si los largos difieren
+  return expected.length === received.length && crypto.timingSafeEqual(expected, received)
+}
+```
+
+</TabsContent>
+<TabsContent value="C#">
+
+```csharp
+using System.Security.Cryptography;
+using System.Text;
+
+public static bool IsValidSignature(string rawBody, string? signatureHeader, string secret)
+{
+    if (string.IsNullOrEmpty(signatureHeader)) return false;
+
+    var parts = signatureHeader
+        .Split(',')
+        .Select(p => p.Split('=', 2))
+        .Where(p => p.Length == 2)
+        .ToDictionary(p => p[0], p => p[1]);
+
+    if (!parts.TryGetValue("t", out var t) || !parts.TryGetValue("sha256", out var received))
+        return false;
+    if (!long.TryParse(t, out var ts) ||
+        Math.Abs(DateTimeOffset.UtcNow.ToUnixTimeSeconds() - ts) > 300)
+        return false;
+
+    using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
+    var expected = Convert.ToHexString(
+        hmac.ComputeHash(Encoding.UTF8.GetBytes($"{t}.{rawBody}"))).ToLowerInvariant();
+
+    return CryptographicOperations.FixedTimeEquals(
+        Encoding.UTF8.GetBytes(expected), Encoding.UTF8.GetBytes(received));
+}
+
+// En el controlador, lee el cuerpo sin parsear:
+// using var reader = new StreamReader(Request.Body);
+// var rawBody = await reader.ReadToEndAsync();
+// var ok = IsValidSignature(rawBody, Request.Headers["X-Ecf-Signature"], secret);
+```
+
+</TabsContent>
+<TabsContent value="PHP">
+
+```php
+<?php
+function isValidSignature(string $rawBody, ?string $signatureHeader, string $secret): bool
+{
+    if (!$signatureHeader) return false;
+
+    $parts = [];
+    foreach (explode(',', $signatureHeader) as $part) {
+        [$key, $value] = array_pad(explode('=', $part, 2), 2, '');
+        $parts[$key] = $value;
+    }
+    if (empty($parts['t']) || empty($parts['sha256'])) return false;
+    if (abs(time() - (int) $parts['t']) > 300) return false;
+
+    $expected = hash_hmac('sha256', $parts['t'] . '.' . $rawBody, $secret);
+    return hash_equals($expected, $parts['sha256']);
+}
+
+$rawBody = file_get_contents('php://input'); // el cuerpo exacto
+if (!isValidSignature($rawBody, $_SERVER['HTTP_X_ECF_SIGNATURE'] ?? null, getenv('ECF_WEBHOOK_SECRET'))) {
+    http_response_code(401);
+    exit;
+}
+http_response_code(200);
+$event = json_decode($rawBody, true);
+```
+
+</TabsContent>
+</Tabs>
+
+## Responde rápido
+
+- Responde **cualquier 2xx** (`200`, `202`, `204`) en **menos de 10 segundos**. Guarda el evento y procésalo después; no hagas trabajo pesado antes de responder.
+- Cualquier otra respuesta (`4xx`, `5xx`, una redirección `3xx`) o un timeout cuenta como fallo.
+- **No seguimos redirecciones.** Configura la URL final.
+- **Usa `X-Ecf-Delivery-Id` para descartar duplicados.** Puede llegar el mismo evento dos veces (por un reintento o un reenvío manual). Si ya procesaste ese `deliveryId`, responde `200` y no hagas nada más.
+
+### Reintentos
+
+Si tu endpoint falla, reintentamos con espera creciente:
+
+| Intento | Cuándo |
+| ---: | --- |
+| 1 | En cuanto ocurre el evento |
+| 2 | 1 minuto después del fallo |
+| 3 | 5 minutos después |
+| 4 | 30 minutos después |
+| 5 | 2 horas después |
+
+Si el quinto intento también falla, la entrega queda **Agotada**. Puedes reenviarla desde **Configuración → Webhooks → Entregas recientes** con el botón de reenviar. El historial de entregas se guarda **30 días**.
+
+## Webhooks y consultas juntos
+
+Los webhooks te ahorran consultas, pero si tu servidor estuvo caído más de lo que cubren los reintentos podrías perder eventos. Recomendamos:
+
+- Usa el webhook como **fuente principal** de estados.
+- Una vez al día, revisa los documentos que sigan **sin estado final** con la [consulta en batch](/docs/integration/document-queries#consulta-en-batch).
+
+## Preguntas frecuentes
+
+### ¿Puedo probar sin exponer mi servidor?
+
+Sí. Configura el webhook en **Pruebas** (TesteCF) apuntando a un servicio de inspección de peticiones o a un túnel hacia tu máquina, y envía documentos de prueba. Lo que configures en Pruebas no afecta a Producción.
+
+### ¿Por qué una entrega dice "No enviado"?
+
+En el momento de enviarla no había un webhook activo para ese entorno, el evento ya no estaba entre tus suscripciones, o el estado no pasaba tu filtro. También ocurre con **Cambio de estado** si la cuenta ya no está en un plan de pago.
+
+### ¿Cuentan los webhooks en mi cuota de requests?
+
+No. Solo cuentan las llamadas que tú haces al API con tu API Key, incluida la de `links.signedXml` si la usas.
