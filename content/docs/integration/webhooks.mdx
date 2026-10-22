@@ -8,10 +8,14 @@ En vez de preguntarle al API cada cierto tiempo, MSeller te **avisa** a ti: cuan
 
 <Callout title="En resumen">
   - Configúralo en el portal: **Configuración → Webhooks**. Un endpoint por entorno (Pruebas, Certificación, Producción).
-  - Tres eventos: **Factura recibida**, **Aprobación comercial** y **Cambio de estado** (este último, en planes de pago).
+  - Tres eventos: **Factura recibida**, **Aprobación comercial** y **Cambio de estado** (este último, **solo para clientes de pago**).
   - Cada envío va firmado con **HMAC-SHA256**. [Valida la firma](#valida-la-firma) antes de confiar en el contenido.
   - Responde **2xx en menos de 10 segundos**. Si no, reintentamos hasta 5 veces en unas 2 h 40 min.
   - Los webhooks **no consumen** requests de tu cuota.
+</Callout>
+
+<Callout type="warn" title="Cambio de estado: solo para clientes de pago">
+  El webhook de **Cambio de estado** (`DOCUMENT_STATUS_UPDATE`) está disponible **únicamente en los planes de pago**. En el plan **Gratis** puedes usar los webhooks de **Factura recibida** y **Aprobación comercial**, y consultar el estado de tus e-CF con la [consulta de e-CF](/docs/integration/document-queries). Para activarlo, [mejora tu plan](/docs/getting-started/planes) desde **Configuración → Facturación**.
 </Callout>
 
 ## Eventos
@@ -71,6 +75,8 @@ Todos los cuerpos traen `deliveryId`, `eventType`, `eNCF`, `rnc` (la cuenta a la
 
 <Tabs items={["Cambio de estado", "Factura recibida", "Aprobación comercial"]}>
 <TabsContent value="Cambio de estado">
+
+<Callout type="warn">Solo para clientes en un plan de pago.</Callout>
 
 ```json
 {

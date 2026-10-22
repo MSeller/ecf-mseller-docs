@@ -10,7 +10,7 @@ Después de [enviar un e-CF](/docs/integration/documents), consulta aquí si la 
   - **Un documento**: `GET /{entorno}/documentos-ecf?ecf={eNCF}` — ver [consulta individual](#consulta-individual).
   - **Varios documentos**: usa la [consulta en batch](#consulta-en-batch); es una sola llamada.
   - Espera unos segundos después del envío y **deja de consultar** cuando el estado sea final (Aceptado o Rechazado).
-  - Cada consulta consume un request de tu cuota. Para no consultar, usa los [webhooks](/docs/integration/webhooks): te avisamos de cada cambio de estado (planes de pago).
+  - Cada consulta consume un request de tu cuota. Para no consultar, usa los [webhooks](/docs/integration/webhooks): te avisamos de cada cambio de estado. **Solo para clientes en un plan de pago.**
 </Callout>
 
 ## Cada cuánto consultar
