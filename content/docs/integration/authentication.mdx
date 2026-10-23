@@ -81,7 +81,7 @@ POST /{entorno}/customer/authentication
 | `refreshToken` | El `refreshToken` recibido al autenticarte con email y contraseña.                                            |
 | `username`     | El valor del claim `sub` de tu `idToken` (un UUID). **No es tu email**: si envías el email, la solicitud falla. |
 
-Para obtener el `sub`, decodifica la parte central (payload) del `idToken`, que es un JWT en Base64URL. Puedes hacerlo una sola vez y guardarlo junto al `refreshToken`.
+Para obtener el `sub`, decodifica la parte central (payload) del `idToken`, que es un JWT en Base64URL. Puedes hacerlo una sola vez y guardarlo junto al `refreshToken`. Consulta [cómo obtener el `username` desde el idToken](#obtener-el-username-desde-el-idtoken).
 
 Si la solicitud incluye `refreshToken`, se usa siempre la renovación, aunque también envíes `email` y `password`.
 
@@ -95,6 +95,97 @@ Si la solicitud incluye `refreshToken`, se usa siempre la renovación, aunque ta
 ```
 
 > **Nota**: La respuesta de renovación **no incluye un nuevo `refreshToken`**. Sigue usando el mismo hasta que expire a los 30 días; después de eso, autentícate de nuevo con email y contraseña.
+
+#### Obtener el username desde el idToken
+
+El `idToken` es un JWT: tres partes en Base64URL separadas por puntos (`encabezado.payload.firma`). El `username` que pide la renovación es el campo `sub` del **payload**, la parte del medio.
+
+Para leerlo:
+
+1. Divide el `idToken` por `.` y toma la segunda parte.
+2. Decodifícala en Base64URL: cambia `-` por `+` y `_` por `/`, y agrega `=` al final hasta que la longitud sea múltiplo de 4.
+3. Interpreta el resultado como JSON.
+4. Lee el campo `sub`.
+
+El payload decodificado se ve así:
+
+```json
+{
+  "sub": "3f2a9c1e-8b7d-4e5f-a6b1-0c9d8e7f6a5b",
+  "cognito:username": "3f2a9c1e-8b7d-4e5f-a6b1-0c9d8e7f6a5b",
+  "email": "tu_email@ejemplo.com",
+  "custom:rnc": "131854267",
+  "exp": 1761253200
+}
+```
+
+`cognito:username` tiene el mismo valor que `sub`, así que puedes usar cualquiera de los dos. **No uses `email`**: la renovación falla si envías el email como `username`.
+
+> **Nota**: No necesitas validar la firma del token para leer el `sub`. La API valida el `refreshToken` al renovar, y un `username` incorrecto solo hace que la renovación falle. El `sub` no cambia nunca para tu usuario, así que basta con leerlo una vez al autenticarte y guardarlo junto al `refreshToken`.
+
+<Tabs items={["JavaScript", "Node.js", "C#", "PHP", "Bash"]}>
+<TabsContent value="JavaScript">
+
+```javascript
+// Navegador
+function getSub(idToken) {
+  const payload = idToken.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+  return JSON.parse(atob(payload)).sub;
+}
+```
+
+</TabsContent>
+
+<TabsContent value="Node.js">
+
+```javascript
+function getSub(idToken) {
+  const payload = Buffer.from(idToken.split(".")[1], "base64url").toString();
+  return JSON.parse(payload).sub;
+}
+```
+
+</TabsContent>
+
+<TabsContent value="C#">
+
+```csharp
+// NuGet: System.IdentityModel.Tokens.Jwt
+using System.IdentityModel.Tokens.Jwt;
+
+public static string GetSub(string idToken)
+{
+    return new JwtSecurityTokenHandler().ReadJwtToken(idToken).Subject;
+}
+```
+
+</TabsContent>
+
+<TabsContent value="PHP">
+
+```php
+<?php
+function getSub($idToken) {
+    $payload = explode('.', $idToken)[1];
+    $json = base64_decode(strtr($payload, '-_', '+/'));
+    return json_decode($json, true)['sub'];
+}
+?>
+```
+
+</TabsContent>
+
+<TabsContent value="Bash">
+
+```bash
+# Requiere jq
+payload=$(echo "$ID_TOKEN" | cut -d. -f2 | tr '_-' '/+')
+while [ $(( ${#payload} % 4 )) -ne 0 ]; do payload="$payload="; done
+echo "$payload" | base64 -d | jq -r .sub
+```
+
+</TabsContent>
+</Tabs>
 
 ## Ejemplos completos de autenticación
 
