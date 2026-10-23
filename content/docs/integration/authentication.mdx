@@ -83,6 +83,8 @@ POST /{entorno}/customer/authentication
 
 Para obtener el `sub`, decodifica la parte central (payload) del `idToken`, que es un JWT en Base64URL. Puedes hacerlo una sola vez y guardarlo junto al `refreshToken`.
 
+Si la solicitud incluye `refreshToken`, se usa siempre la renovación, aunque también envíes `email` y `password`.
+
 #### Ejemplo de respuesta exitosa
 
 ```json
@@ -352,9 +354,19 @@ function getDocument($ecf) {
 
 ## Manejo de errores de autenticación
 
+Los errores del endpoint de autenticación responden con este formato:
+
+```json
+{
+  "error": "Incorrect username or password.",
+  "code": "AUTH_ERROR"
+}
+```
+
 | Código HTTP | Descripción            | Solución                                                   |
 | ----------- | ---------------------- | ---------------------------------------------------------- |
-| 401         | Credenciales inválidas | Verifica que el email y contraseña sean correctos          |
+| 400         | Solicitud incompleta (`INVALID_REQUEST`) | Envía `email` y `password`, o `refreshToken` y `username`; ningún campo puede estar vacío |
+| 400         | Credenciales inválidas | Verifica que el email y contraseña sean correctos          |
 | 401         | Token expirado         | Renueva el token con tu `refreshToken`                     |
 | 400         | refreshToken inválido  | Verifica que `username` sea el `sub` del idToken y no tu email; si el refreshToken expiró (30 días), autentícate de nuevo con email y contraseña |
 | 403         | API Key inválida       | Verifica que la API Key sea correcta y esté activa         |
