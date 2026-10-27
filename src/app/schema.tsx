@@ -142,9 +142,9 @@ export function generateHowToSchema() {
       {
         "@type": "HowToStep",
         position: 10,
-        name: "Asignación de roles",
-        text: "Asigne el rol de Representante Legal en la Oficina Virtual (OFV) para completar la certificación.",
-        url: `${baseUrl}/docs/certification/process#paso-10--asignación-de-roles`,
+        name: "Asignación de roles (opcional)",
+        text: "Solo si el portal DGII no llega al paso 15 (Finalizado): asigne el rol de Representante Legal en la Oficina Virtual (OFV).",
+        url: `${baseUrl}/docs/certification/process#paso-10--asignación-de-roles-opcional`,
       },
     ],
     video: {

@@ -13,6 +13,10 @@ Antes de emitir en producción, la DGII debe aprobar a cada negocio como **emiso
   - **¿Tienes varios clientes?** Cada cliente (cada RNC) se certifica **una vez**, desde su propia cuenta.
 </Callout>
 
+<Callout title="¿Solo quieres probar? No necesitas certificarte">
+  La certificación es solo para emitir en **producción** (eCF). Para probar en **TesteCF** no hace falta certificarte, ni antes ni después de este proceso. En **TesteCF** puedes usar cualquier secuencia **sin usar** del **1 al 20,000** en cada tipo de e-CF (por ejemplo, de `E310000000001` a `E310000020000`). Ver [Entornos](/docs/integration/overview#entornos).
+</Callout>
+
 ## Quién hace qué
 
 En nuestra web decimos que te certificas en **4 pasos**: son los cuatro bloques grandes del recorrido. Abajo está el detalle de los 10 pasos.
@@ -22,10 +26,10 @@ En nuestra web decimos que te certificas en **4 pasos**: son los cuatro bloques 
 | 1. Preparar la cuenta | Cargar el certificado y crear la API Key de CerteCF (pasos 1 y 2) | Tú, en MSeller |
 | 2. Postulación | Crear la postulación en la DGII, firmarla con nuestra herramienta y avisarnos (pasos 3 y 4) | El contribuyente en la DGII; la firma, en MSeller |
 | 3. Pruebas | Enviar los documentos de prueba de cada tipo de e-CF (paso 5) | **MSeller, automático** |
-| 4. Cierre | Aprobación de la DGII, URLs de producción, declaración jurada y roles (pasos 7 a 10) | El contribuyente en la DGII y su Oficina Virtual |
+| 4. Cierre | Aprobación de la DGII, URLs de producción, declaración jurada y, solo si hace falta, roles (pasos 7 a 10) | El contribuyente en la DGII y su Oficina Virtual |
 
 - Los pasos **en la DGII** se hacen con el **usuario de la Oficina Virtual del contribuyente**. Los hace el propio negocio, o su proveedor de software si el negocio le da acceso o lo hacen juntos.
-- La **asignación de roles** (paso 10) la hace el **representante legal** desde su Oficina Virtual.
+- La **asignación de roles** (paso 10) es **opcional**: solo hace falta si el portal DGII no llega al **paso 15 (Finalizado)**. Si se necesita, la hace el **representante legal** desde su Oficina Virtual.
 - **Costo**: MSeller no cobra por la certificación, y la DGII tampoco. Los documentos de prueba usan unos pocos requests de la cuota de tu plan. Si eres proveedor de software, **cobrarle a tu cliente por hacer este proceso es decisión tuya**.
 - **Tiempo**: unos **10 minutos** de trabajo. Lo que más tarda es la revisión de la DGII (pasos 7 y 10), y ese plazo lo pone la DGII, no MSeller.
 
@@ -44,7 +48,7 @@ El recorrido tiene 10 pasos. La columna **Dónde** indica si lo haces en MSeller
 | [7](#paso-7--esperar-aprobación-de-representación-impresa) | Esperar la aprobación | DGII |
 | [8](#paso-8--configurar-urls-de-producción) | Cambiar las URLs a producción | DGII |
 | [9](#paso-9--realizar-declaración-jurada) | Firmar la declaración jurada | DGII |
-| [10](#paso-10--asignación-de-roles) | Asignar roles | Oficina Virtual DGII |
+| [10](#paso-10--asignación-de-roles-opcional) | Asignar roles (opcional) | Oficina Virtual DGII |
 
 ## Video tutorial
 
@@ -212,16 +216,20 @@ Haz clic en **Confirmar URLs** en el portal DGII para guardar los cambios.
 
 ---
 
-## Paso 10 — Asignación de roles
+## Paso 10 — Asignación de roles (opcional)
 
-Para finalizar el proceso, asigna roles al **Representante Legal** desde tu **Oficina Virtual (OFV)** una vez que la DGII notifique la finalización del proceso de habilitación de facturación electrónica.
+<Callout title="¿Ya ves el paso 15 (Finalizado)?">
+  Si en el [portal de certificación DGII](https://ecf.dgii.gov.do/certecf/portalcertificacion) el **paso 15 — Finalizado** aparece completado, tu certificación está terminada y estás listo para producción. **Omite este paso** y ve a [solicitar tu secuencia de e-NCF](#después-de-la-certificación--solicitar-tu-secuencia-de-e-ncf).
+</Callout>
+
+Solo si el portal no te permite completar la certificación, asigna roles al **Representante Legal** desde tu **Oficina Virtual (OFV)** una vez que la DGII notifique la finalización del proceso de habilitación de facturación electrónica.
 
 1. Confirma la asignación del rol principal del Representante Legal.
 2. Haz clic en **Finalizar**.
 
 📄 [Ver instructivo DGII paso a paso para la delegación de roles](https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Instructivos%20sobre%20Facturaci%C3%B3n%20Electr%C3%B3nica/Instructivo%20Delegaciones%20de%20Roles%20de%20Facturaci%C3%B3n%20Electr%C3%B3nica.pdf)
 
-> **¡Felicidades!** Con la asignación de roles concluye el proceso de certificación CerteCF. Tu empresa está lista para emitir comprobantes fiscales electrónicos en producción.
+> **¡Felicidades!** Al llegar al paso 15 (Finalizado) del portal DGII concluye la certificación. Tu empresa está lista para emitir comprobantes fiscales electrónicos en producción.
 
 ---
 
@@ -235,7 +243,7 @@ Después de completar el proceso, ya casi estás listo para enviar comprobantes 
 4. Indica la **Cantidad** y haz clic en **Agregar**.
 5. Repite los pasos 3 y 4 para cada tipo de e-CF que vayas a usar (notas de crédito, notas de débito, compras, gastos menores, etc.).
 6. Cuando hayas agregado todos los tipos, haz clic en **Enviar Solicitud**.
-7. La DGII revisa la solicitud y la aprueba o la rechaza. Consulta el estado en **Consultas** → **Solicitudes de Comprobantes**.
+7. La DGII revisa la solicitud y la aprueba o la rechaza; normalmente tarda unos **10 minutos**. Consulta el estado en **Consultas** → **Solicitudes de Comprobantes**.
 
 ![Solicitud de comprobantes fiscales electrónicos en la Oficina Virtual de la DGII](/images/certification/solicitar-secuencia-ncf.png)
 
