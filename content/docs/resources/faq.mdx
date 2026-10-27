@@ -22,6 +22,10 @@ Usa el certificado de **uno de tus clientes**. Crea una cuenta con el RNC de ese
 
 Sí, **TesteCF también requiere un `.p12` válido**. No ofrecemos certificados de prueba y uno autogenerado no sirve. Sin certificado, el API responde `412 CERTIFICATE_NOT_CONFIGURED`.
 
+### ¿Tengo que certificarme antes de usar TesteCF?
+
+No. **TesteCF no requiere certificación**: solo necesitas tu `.p12` y una API Key de TesteCF. Puedes usarlo antes, durante o después de certificarte. En **TesteCF** puedes usar cualquier secuencia del **1 al 20,000** en cada tipo de e-CF (por ejemplo, de `E310000000001` a `E310000020000`). La certificación solo es necesaria para emitir en **producción** (eCF).
+
 ### ¿El certificado está incluido? ¿Cuánto cuesta y cuánto dura?
 
 No está incluido: lo compra el negocio a una entidad de certificación, que fija el precio y la vigencia. Sirve para los tres entornos y te avisamos por correo antes de que venza. Ver [Preguntas sobre el certificado](/docs/getting-started/certificado#preguntas-sobre-el-certificado).
