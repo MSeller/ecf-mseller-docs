@@ -1,0 +1,299 @@
+---
+title: Crear cuentas de clientes por API (Proveedores)
+description: Cómo una cuenta Proveedor crea por API la cuenta de cada cliente, con su contraseña, certificado y API Key, en una sola llamada
+---
+
+# Crear cuentas de clientes por API (Proveedores)
+
+Si tu empresa tiene una cuenta **Proveedor** (por ejemplo, un ERP o un sistema de facturación que atiende a muchas empresas), puedes crear la cuenta e-CF de cada cliente **directamente desde tu sistema**, sin pasar por el formulario de registro.
+
+Una sola llamada crea la cuenta del cliente y te devuelve todo lo necesario para empezar a integrarla:
+
+- La **contraseña** de la nueva cuenta.
+- Una **API Key** para el entorno que elijas (`TesteCF`, `CerteCF` o `eCF`).
+- El **certificado digital** del cliente, si lo envías, ya cargado y validado.
+
+La cuenta queda vinculada a tu cuenta Proveedor, confirmada y lista para usar. El cliente recibe el correo de bienvenida y puede tomar el control cuando quiera con **"Olvidé mi contraseña"**.
+
+> **Requisito**: tu cuenta debe ser de tipo **Proveedor**. Consulta [Multi-tenant (Múltiples Clientes)](/docs/getting-started/multi-tenant#1-crear-la-cuenta-principal-de-tu-empresa-proveedor) para crearla.
+
+## Resumen del flujo
+
+<Steps>
+<Step>
+### Inicia sesión con tu cuenta Proveedor
+
+`POST /{entorno}/customer/authentication` con el email y la contraseña **de tu cuenta Proveedor**. Guarda el `idToken` (válido 60 minutos) y el `refreshToken` (30 días).
+</Step>
+<Step>
+### Crea la cuenta del cliente
+
+`POST /{entorno}/customer/provider/sub-accounts` con el `idToken` en el encabezado `Authorization` y los datos del cliente.
+</Step>
+<Step>
+### Guarda la contraseña y la API Key
+
+La respuesta trae la contraseña y la API Key del cliente. **Se muestran una sola vez**: guárdalas de forma segura en tu sistema.
+</Step>
+<Step>
+### Integra la cuenta del cliente
+
+Usa el email y la contraseña del cliente para autenticarte como él, y su API Key en `X-API-KEY`, igual que en la [integración normal](/docs/integration/authentication).
+</Step>
+</Steps>
+
+## 1. Iniciar sesión como Proveedor
+
+Es el mismo endpoint de [Autenticación API](/docs/integration/authentication), con las credenciales de tu cuenta Proveedor:
+
+```bash
+curl -X POST https://ecf.api.mseller.app/TesteCF/customer/authentication \
+  -H 'Content-Type: application/json' \
+  -d '{ "email": "integraciones@tu-empresa.com", "password": "tu_contraseña" }'
+```
+
+Usa el `idToken` de la respuesta. Cuando expire, [renuévalo con el `refreshToken`](/docs/integration/authentication#3-renovar-el-token-con-el-refreshtoken) en lugar de volver a enviar la contraseña.
+
+> Los endpoints de Proveedor **no requieren API Key**; solo el `idToken` de tu cuenta Proveedor.
+
+## 2. Crear la cuenta del cliente
+
+```
+POST /{entorno}/customer/provider/sub-accounts
+Authorization: Bearer {idToken del Proveedor}
+Content-Type: application/json
+```
+
+| Entorno | URL |
+| ------- | --- |
+| TesteCF | `https://ecf.api.mseller.app/TesteCF/customer/provider/sub-accounts` |
+| CerteCF | `https://ecf.api.mseller.app/CerteCF/customer/provider/sub-accounts` |
+| eCF     | `https://ecf.api.mseller.app/eCF/customer/provider/sub-accounts` |
+
+La cuenta del cliente es la misma en los tres entornos. El entorno de la URL solo define, si no indicas otro, el entorno de la API Key que se crea.
+
+### Cuerpo de la solicitud
+
+| Campo | Requerido | Descripción |
+| ----- | :-------: | ----------- |
+| `rnc` | Sí | RNC (9 dígitos) o cédula (11 dígitos) del cliente, solo números. |
+| `businessName` | Sí | Nombre del negocio (máx. 100 caracteres, sin `<` ni `>`). |
+| `email` | Sí | Correo del cliente. Será el usuario de la cuenta y recibe el correo de bienvenida. |
+| `givenName` | Sí | Nombre del contacto. |
+| `familyName` | Sí | Apellido del contacto. |
+| `businessPhone` | No | Teléfono. |
+| `businessAddress` | No | Dirección. |
+| `businessCity` | No | Ciudad. |
+| `authorizationConfirmed` | Sí | Debe ser `true`: confirmas que el cliente te autorizó a crear la cuenta en su nombre. |
+| `certificate` | No | Certificado digital del cliente: `{ "content": "<.p12 en Base64>", "filename": "certificado.p12" }`. |
+| `certificatePassword` | Si envías `certificate` | Contraseña del certificado. |
+| `apiKeyEnvironment` | No | Entorno de la API Key: `TesteCF`, `CerteCF` o `eCF`. Por defecto, el entorno de la URL. |
+| `source` | No | Origen acordado con MSeller para asignar un plan especial (ver [Planes por origen](#planes-por-origen)). Sin `source`, la cuenta inicia en el plan **Gratis**. |
+
+Si envías el certificado, se valida antes de crear nada: si la contraseña es incorrecta o el archivo no es un `.p12` válido, la solicitud se rechaza y no se consume ningún cupo. Para una cédula, el certificado debe estar emitido a nombre de esa persona.
+
+### Ejemplo
+
+<Tabs items={["cURL", "TypeScript"]}>
+<TabsContent value="cURL">
+
+```bash
+curl -X POST https://ecf.api.mseller.app/TesteCF/customer/provider/sub-accounts \
+  -H "Authorization: Bearer $ID_TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "rnc": "131234567",
+    "businessName": "Ferretería El Clavo SRL",
+    "email": "admin@elclavo.com.do",
+    "givenName": "Ana",
+    "familyName": "Pérez",
+    "businessPhone": "8095550000",
+    "authorizationConfirmed": true,
+    "certificate": {
+      "content": "'"$(base64 < certificado.p12 | tr -d '\n')"'",
+      "filename": "certificado.p12"
+    },
+    "certificatePassword": "clave-del-certificado",
+    "apiKeyEnvironment": "TesteCF"
+  }'
+```
+
+</TabsContent>
+<TabsContent value="TypeScript">
+
+```typescript
+import { readFile } from "node:fs/promises";
+
+const BASE_URL = "https://ecf.api.mseller.app/TesteCF";
+
+async function createClientAccount(providerIdToken: string) {
+  const certificate = await readFile("certificado.p12");
+
+  const response = await fetch(`${BASE_URL}/customer/provider/sub-accounts`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${providerIdToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      rnc: "131234567",
+      businessName: "Ferretería El Clavo SRL",
+      email: "admin@elclavo.com.do",
+      givenName: "Ana",
+      familyName: "Pérez",
+      authorizationConfirmed: true,
+      certificate: {
+        content: certificate.toString("base64"),
+        filename: "certificado.p12",
+      },
+      certificatePassword: "clave-del-certificado",
+      apiKeyEnvironment: "TesteCF",
+    }),
+  });
+
+  const body = await response.json();
+
+  if (response.status !== 201) {
+    throw new Error(`${body.code}: ${body.message}`);
+  }
+
+  // Guárdalos ahora: no se pueden volver a consultar.
+  await saveClientCredentials(body.rnc, {
+    email: body.email,
+    password: body.password,
+    apiKey: body.apiKey.value,
+    environment: body.apiKey.environment,
+  });
+
+  return body;
+}
+```
+
+</TabsContent>
+</Tabs>
+
+### Respuesta exitosa (`201`)
+
+```json
+{
+  "rnc": "131234567",
+  "email": "admin@elclavo.com.do",
+  "businessName": "Ferretería El Clavo SRL",
+  "password": "kQ3v…Aa1!",
+  "plan": "FREE",
+  "apiKey": {
+    "value": "TesteCF-3f0c2a9e-…",
+    "keyId": "a1b2c3d4e5",
+    "environment": "TesteCF"
+  }
+}
+```
+
+> **Importante**: la `password` y el `apiKey.value` **se muestran una sola vez** y no se pueden volver a consultar por la API. Si se pierden, [genera una nueva contraseña](#nueva-contraseña-para-un-cliente) o [una nueva API Key](#más-api-keys-para-un-cliente).
+
+### La API Key tarda unos segundos en activarse
+
+Una API Key recién creada puede responder `403` durante **30 a 90 segundos** mientras se propaga. Si tu sistema la usa de inmediato, reintenta con espera (por ejemplo, cada 15 segundos durante 2 minutos) antes de considerarlo un error.
+
+La API Key solo funciona en su entorno. Una key de `TesteCF` es rechazada en `CerteCF` y en `eCF`; crea una para cada entorno que necesites.
+
+### Errores
+
+Todas las respuestas de error incluyen `message` (en español, apto para mostrar) y `code` (para tu código).
+
+| Estado | `code` | Qué significa |
+| :----: | ------ | ------------- |
+| 400 | `VALIDATION_ERROR` | Falta un campo o tiene un formato inválido (incluye `source` y `apiKeyEnvironment`). |
+| 400 | `INVALID_CERTIFICATE` | El archivo no es un certificado `.p12` válido. |
+| 400 | `INVALID_CERTIFICATE_PASSWORD` | La contraseña del certificado es incorrecta. |
+| 400 | `CERTIFICATE_OWNER_MISMATCH` | El certificado no pertenece a la cédula indicada. |
+| 401 | `UNAUTHORIZED` | Falta el `idToken` o expiró. |
+| 403 | `NOT_A_PROVIDER` | Tu cuenta no es de tipo Proveedor. |
+| 403 | `SOURCE_NOT_ALLOWED` | El `source` enviado no está habilitado para tu cuenta. |
+| 403 | `SUB_ACCOUNT_LIMIT_REACHED` | Alcanzaste tu límite de cuentas (`limit` en la respuesta). |
+| 409 | `RNC_ALREADY_REGISTERED` | Ya existe una cuenta con ese RNC. |
+| 409 | `EMAIL_ALREADY_REGISTERED` | Ya existe una cuenta con ese correo. |
+| 500 | `INTERNAL_ERROR` | Error inesperado. No se creó nada; puedes reintentar. |
+
+La creación es todo o nada: si algo falla, no queda ninguna cuenta, certificado, API Key ni cupo consumido.
+
+## Planes por origen
+
+Por defecto, toda cuenta creada por un Proveedor inicia en el plan **Gratis**, y el cliente puede cambiar de plan después desde el portal.
+
+Si tu empresa tiene un acuerdo comercial con MSeller para que las cuentas de tus clientes inicien en otro plan, te asignaremos un **origen** (`source`), por ejemplo `"source": "mi-erp"`. Al enviarlo, la cuenta se crea en el plan acordado. El origen está ligado a tu cuenta Proveedor: otros proveedores no pueden usarlo, y un origen que no esté habilitado para ti devuelve `403 SOURCE_NOT_ALLOWED`.
+
+Para habilitar un origen, [contáctanos](mailto:hello@mseller.app).
+
+## Otros endpoints del Proveedor
+
+Todos usan el `idToken` de tu cuenta Proveedor y no requieren API Key.
+
+### Cupo disponible
+
+```
+GET /{entorno}/customer/provider/sub-accounts/quota
+```
+
+```json
+{ "limit": 10, "used": 3, "remaining": 7 }
+```
+
+El límite inicial es de 10 cuentas. Si necesitas más, [contáctanos](mailto:hello@mseller.app).
+
+### Cuentas de tus clientes
+
+```
+GET /{entorno}/customer/provider/sub-accounts/linked
+```
+
+```json
+{
+  "subAccounts": [
+    {
+      "rnc": "131234567",
+      "businessName": "Ferretería El Clavo SRL",
+      "email": "admin@elclavo.com.do",
+      "createdAt": "2026-11-05T14:00:00.000Z",
+      "createdByProvider": true
+    }
+  ]
+}
+```
+
+`createdByProvider: false` indica una cuenta que el propio cliente creó y luego te autorizó a administrar.
+
+### Nueva contraseña para un cliente
+
+Solo para cuentas que creaste tú. Reemplaza la contraseña, cierra las sesiones abiertas de esa cuenta y notifica al cliente por correo.
+
+```
+POST /{entorno}/customer/provider/sub-accounts/password
+Authorization: Bearer {idToken del Proveedor}
+X-Tenant-Rnc: 131234567
+```
+
+```json
+{ "password": "nueva-contraseña" }
+```
+
+### Más API Keys para un cliente
+
+Usa el endpoint de API Keys con el encabezado `X-Tenant-Rnc` para actuar sobre la cuenta del cliente. La key se crea para el entorno de la URL; el cliente recibe un aviso por correo.
+
+```bash
+curl -X POST https://ecf.api.mseller.app/CerteCF/customer/apikey \
+  -H "Authorization: Bearer $ID_TOKEN" \
+  -H 'X-Tenant-Rnc: 131234567' \
+  -H 'Content-Type: application/json' \
+  -d '{ "action": "create", "description": "Integración ERP" }'
+```
+
+Cada cliente puede tener hasta 10 API Keys creadas por el Proveedor; revoca una para crear otra.
+
+## Buenas prácticas
+
+- **Guarda las credenciales cifradas**: la contraseña y la API Key de cada cliente dan acceso completo a su facturación.
+- **Una cuenta por cliente**: nunca compartas credenciales ni API Keys entre clientes.
+- **Reintenta solo errores `5xx`**: los `4xx` indican un problema en los datos que no se resuelve reintentando. Ante un `409`, la cuenta ya existe. La excepción es el `403` de una API Key recién creada: reintenta durante la propagación, como se explica en [La API Key tarda unos segundos en activarse](#la-api-key-tarda-unos-segundos-en-activarse).
+- **Pide autorización al cliente** antes de crear su cuenta; `authorizationConfirmed` deja constancia de ello.
