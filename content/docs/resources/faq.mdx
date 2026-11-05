@@ -40,13 +40,17 @@ Con el `.p12` en mano, la [certificación](/docs/certification/process) toma uno
 
 **Sí, desde el portal.** Con tu cuenta **Proveedor** puedes **crear la cuenta de cada cliente en un paso** y **gestionar su certificado y sus API Keys** desde tu Dashboard (botón **Gestionar**). Cada cliente sigue teniendo **su propia cuenta**, aislada de las demás. Ver [Varios clientes (multi-tenant)](/docs/getting-started/multi-tenant).
 
+### ¿Puedo crear las cuentas de mis clientes desde mi software, sin el portal?
+
+**Sí, por API.** Con el token de tu cuenta Proveedor, `POST /customer/provider/sub-accounts` crea la cuenta del cliente (con su certificado, si lo envías) y devuelve su **contraseña** y una **API Key** del entorno que elijas, en una sola respuesta. Ver [Crear cuentas de clientes por API](/docs/integration/provider-sub-accounts).
+
 ### Mi cliente ya tenía cuenta. ¿Cómo lo gestiono?
 
 El dueño debe **autorizarte** desde su portal: **Mi cuenta → Acceso de tu proveedor → Autorizar a mi proveedor**. Solo aplica al proveedor que indicó al registrarse. Luego pulsa **Actualizar** en tu tabla y verás **Gestionar**. Ver [Cliente que ya tiene cuenta](/docs/getting-started/multi-tenant#2-agrega-a-tus-clientes).
 
 ### ¿Cuántas subcuentas puedo crear?
 
-**3** de entrada. Para más, pulsa **Solicitar más subcuentas** en tu Dashboard y envía la solicitud por soporte. Los clientes que te autorizan desde su portal no cuentan contra ese límite.
+**10** de entrada. Para más, pulsa **Solicitar más subcuentas** en tu Dashboard y envía la solicitud por soporte. Los clientes que te autorizan desde su portal no cuentan contra ese límite.
 
 ### ¿El Proveedor puede descargar el certificado o ver las API Keys de un cliente?
 

@@ -1,7 +1,7 @@
 ---
 title: Varios clientes (multi-tenant)
 seoTitle: "Multi-tenant e-CF: Gestiona Varios Clientes con MSeller ECF"
-description: Cómo una empresa de software crea y gestiona las cuentas de sus clientes (certificado y API Keys) desde el portal de Proveedor de MSeller ECF.
+description: Cómo una empresa de software crea y gestiona las cuentas de sus clientes (certificado y API Keys) desde el portal de Proveedor de MSeller ECF o automáticamente por API.
 ---
 
 Esta página es para empresas de software (ERP, POS, SaaS) que emiten e-CF para **varios negocios**.
@@ -9,6 +9,7 @@ Esta página es para empresas de software (ERP, POS, SaaS) que emiten e-CF para 
 <Callout title="En resumen">
   - Cada cliente sigue teniendo **su propia cuenta**, con su RNC, su certificado y sus API Keys. Ningún cliente ve ni firma documentos de otro.
   - Desde tu cuenta **Proveedor** puedes **crear la cuenta de un cliente en un paso** y **gestionar su certificado y sus API Keys** sin entrar a su cuenta.
+  - ¿Quieres automatizarlo? **Crea las cuentas desde tu propio software por API**: una sola llamada devuelve la contraseña y la API Key del cliente. Ver [Crear cuentas de clientes por API](/docs/integration/provider-sub-accounts).
   - Si el cliente ya tenía cuenta, **él te autoriza** desde su portal y a partir de ahí la gestionas igual.
 </Callout>
 
@@ -21,7 +22,7 @@ Esta página es para empresas de software (ERP, POS, SaaS) que emiten e-CF para 
 
 Desde tu panel puedes gestionar una cuenta de cliente en dos casos:
 
-- **La creaste tú** desde el panel de Proveedor.
+- **La creaste tú**, desde el panel de Proveedor o [por API](/docs/integration/provider-sub-accounts).
 - **El cliente te autorizó** desde su portal (clientes que ya tenían cuenta).
 
 ## 1. Crea tu cuenta Proveedor
@@ -37,11 +38,15 @@ Al entrar, tu **Dashboard** muestra el panel de Proveedor con el botón **Crear 
 
 Crea la cuenta del cliente **desde tu panel, en un solo paso**: sin registro de varios pasos y sin código de verificación. Queda vinculada a ti automáticamente.
 
+<Callout title="¿Muchos clientes? Hazlo por API">
+  Lo mismo que hace este formulario lo puede hacer tu software con una llamada a la API, que además crea la **API Key** del cliente para el entorno que elijas. Ideal para activar e-CF desde tu ERP sin intervención manual. Ver [Crear cuentas de clientes por API](/docs/integration/provider-sub-accounts).
+</Callout>
+
 <Steps>
 <Step>
 ### Abre el formulario
 
-En el **Dashboard**, pulsa **Crear subcuenta**. Arriba verás cuántas subcuentas llevas (por ejemplo, **1 de 3**).
+En el **Dashboard**, pulsa **Crear subcuenta**. Arriba verás cuántas subcuentas llevas (por ejemplo, **1 de 10**).
 </Step>
 
 <Step>
@@ -167,7 +172,7 @@ La API se autentica **como el cliente** en cada llamada ([ver autenticación](/d
 
 ## Límite de subcuentas
 
-Tu cuenta Proveedor puede **crear 3 subcuentas** de entrada. El panel muestra cuántas llevas.
+Tu cuenta Proveedor puede **crear 10 subcuentas** de entrada, desde el panel o por API. El panel muestra cuántas llevas, y por API puedes consultarlo en [`GET /customer/provider/sub-accounts/quota`](/docs/integration/provider-sub-accounts#cupo-disponible).
 
 ¿Necesitas más? Pulsa **Solicitar más subcuentas** en tu Dashboard: te lleva al formulario de [soporte](https://ecf.mseller.app/support) con el asunto listo. Revisamos la solicitud y ampliamos tu límite.
 
@@ -177,7 +182,7 @@ Los clientes que **te autorizan** desde su portal **no cuentan** contra este lí
 
 **Cada cliente tiene su propio plan.** El consumo se mide por cuenta (no se suma en la cuenta Proveedor).
 
-- Las subcuentas que creas desde el panel empiezan en el plan **Gratis**.
+- Las subcuentas que creas desde el panel o por API empiezan en el plan **Gratis**, salvo que tengas un [plan por origen](/docs/integration/provider-sub-accounts#planes-por-origen) acordado con MSeller.
 - Cuando un cliente necesita un plan de pago, hay dos formas de cobrarlo:
   - **El cliente paga lo suyo**: su dueño entra al portal con el correo de su cuenta, va a **Configuración → Facturación** y paga con su tarjeta.
   - **Tú pagas y le facturas**: suscribes tu tarjeta, pagas su plan y se lo cobras junto con tus servicios. Escríbenos por [soporte](https://ecf.mseller.app/support) para activarlo.
@@ -187,9 +192,9 @@ Ver [Planes y pagos](/docs/getting-started/planes#quién-paga-en-un-modelo-multi
 
 ## Consejo: habilita e-CF desde tu propio software
 
-1. Un **formulario** en tu software donde el cliente solicita activar e-CF.
+1. Un **formulario** en tu software donde el cliente solicita activar e-CF y sube su certificado `.p12`.
 2. **Guía al cliente** para comprar su certificado en la [Cámara de Comercio de Santo Domingo](https://digi.camarasantodomingo.do/).
-3. **Crea su subcuenta** desde tu panel de Proveedor, **instala su certificado** y **crea sus API Keys** desde **Gestionar**.
+3. **Crea su subcuenta** [por API](/docs/integration/provider-sub-accounts) con sus datos y su certificado: recibes su contraseña y su API Key en la misma respuesta. (O hazlo a mano desde tu panel de Proveedor y **Gestionar**.)
 4. [Certifícalo](/docs/certification/process) ante la DGII.
 5. Una pantalla de **configuración por tenant** en tu software donde guardas su entorno, credenciales y API Key.
 

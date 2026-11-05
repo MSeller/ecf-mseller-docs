@@ -3,6 +3,7 @@
     "pages": [
         "overview",
         "authentication",
+        "provider-sub-accounts",
         "document-format",
         "documents",
         "formato-documentos-ecf",
