@@ -1,0 +1,295 @@
+---
+title: Aprobación Comercial
+description: Aceptar o rechazar comercialmente los e-CF recibidos (ACECF) desde tu sistema con la API de MSeller ECF
+---
+
+Cuando un proveedor te envía un e-CF, MSeller lo recibe a tu nombre y responde
+automáticamente el **Acuse de Recibo** (ARECF). Ese acuse solo dice "lo
+recibí". La **Aprobación Comercial** (ACECF) es tu decisión sobre la factura:
+**aceptas** o **rechazas** los bienes, servicios y montos que contiene.
+
+Con este endpoint tu sistema envía esa decisión. MSeller construye el ACECF,
+lo firma con el certificado digital de la cuenta, lo envía a la DGII y, cuando
+la DGII lo toma, se lo entrega al emisor de la factura. También puedes hacerlo
+sin código desde el portal, en **Documentos → Recibidos**.
+
+> **⚠️ IMPORTANTE**: Una vez que la DGII toma la aprobación comercial de un
+> e-CF, **no puede cambiarse** (Decreto 587-24, art. 17, párrafo VIII). Envía
+> la decisión solo cuando hayas revisado la factura.
+
+## Endpoint
+
+```
+POST /{entorno}/aprobacion-comercial/{eNCF}
+```
+
+Donde `{entorno}` puede ser:
+
+- `TesteCF` (para pruebas)
+- `CerteCF` (para certificación)
+- `eCF` (para producción)
+
+y `{eNCF}` es el e-NCF del documento **recibido**, por ejemplo `E310000004111`.
+
+### Encabezados requeridos
+
+```
+Authorization: Bearer {tu_idToken}
+X-API-KEY: {tu_api_key}
+Content-Type: application/json
+```
+
+El `idToken` se obtiene en [Autenticación API](/docs/integration/authentication).
+El RNC comprador se toma del token: solo puedes aprobar e-CF recibidos por tu
+propia cuenta.
+
+### Requisitos previos
+
+- Tener un **certificado digital (.p12) activo** cargado en la plataforma.
+- Que el e-CF haya sido **recibido** por tu cuenta en ese entorno. Te enteras
+  de cada factura nueva con el webhook
+  [**Factura recibida**](/docs/integration/webhooks) (`INCOMING_INVOICE`).
+
+## Cuerpo de la solicitud
+
+Aceptar:
+
+```json
+{ "approved": true }
+```
+
+Rechazar:
+
+```json
+{
+  "approved": false,
+  "rejectionReason": "El precio no coincide con la orden de compra 4512."
+}
+```
+
+| Campo             | Tipo    | Requerido          | Descripción                                                          |
+| ----------------- | ------- | ------------------ | -------------------------------------------------------------------- |
+| `approved`        | boolean | Sí                 | `true` acepta el e-CF; `false` lo rechaza.                           |
+| `rejectionReason` | string  | Solo para rechazar | Motivo del rechazo, hasta **250 caracteres**. Se ignora al aceptar.  |
+
+El **RNC emisor**, la **fecha de emisión** y el **monto total** se toman del
+e-CF recibido, y la **fecha y hora de la aprobación** es la hora actual de
+República Dominicana. No se envían en la solicitud.
+
+## Cómo se procesa
+
+1. Validamos el cuerpo y que el e-CF exista en tu cuenta. Un error aquí
+   (`400`, `404`, `409`, `422 NOT_RECEIVED`) **no envía nada** a la DGII.
+2. Construimos y firmamos el ACECF, y guardamos el XML firmado junto a tus
+   documentos recibidos.
+3. Lo enviamos a la DGII.
+4. Solo si la DGII lo toma, lo entregamos al emisor en la dirección de
+   aprobación comercial que publica en el directorio de la DGII. Si el emisor
+   no responde, la aprobación **sigue siendo válida** ante la DGII: lo verás
+   en `issuerDelivered: false`.
+
+## Respuestas
+
+### Aprobación enviada — `200`
+
+```json
+{
+  "message": "e-CF rechazado comercialmente.",
+  "ecf": "E310000004111",
+  "commercialApproval": {
+    "decision": "Rechazado",
+    "rejectionReason": "El precio no coincide con la orden de compra 4512.",
+    "fechaHoraAprobacionComercial": "06-11-2026 09:30:12",
+    "signedXmlKey": "102320705/receivedDocs/eCF/ACECF-00300731015-E310000004111-1793955012000.xml",
+    "dgiiStatus": "Aprobada",
+    "dgiiMessages": [],
+    "issuerDelivered": true,
+    "sentAt": 1793955012000,
+    "updatedAt": 1793955014000
+  }
+}
+```
+
+| Campo                          | Descripción                                                                                       |
+| ------------------------------ | ------------------------------------------------------------------------------------------------- |
+| `decision`                     | `Aceptado` o `Rechazado`, según `approved`.                                                       |
+| `rejectionReason`              | Motivo del rechazo (solo al rechazar).                                                            |
+| `fechaHoraAprobacionComercial` | Fecha y hora del ACECF, formato `dd-MM-aaaa HH:mm:ss`.                                            |
+| `dgiiStatus`                   | `Aprobada`: la DGII tomó la aprobación. Ver [Estados](#estados).                                   |
+| `dgiiMessages`                 | Mensajes de la DGII, si los hay.                                                                   |
+| `issuerDelivered`              | `true` si el emisor recibió el ACECF.                                                             |
+| `issuerDeliveryError`          | Motivo cuando `issuerDelivered` es `false`.                                                       |
+| `sentAt`, `updatedAt`          | Milisegundos epoch del envío y de la última actualización.                                        |
+
+> `dgiiStatus: "Aprobada"` significa que la DGII **recibió y tomó** tu
+> aprobación comercial, tanto si aceptaste como si rechazaste la factura. Tu
+> decisión está en `decision`.
+
+### La DGII no tomó la aprobación — `422`
+
+La solicitud llegó a la DGII y la rechazó. El motivo viene en
+`commercialApproval.dgiiMessages`. Corrige el problema y vuelve a enviar.
+
+```json
+{
+  "message": "La DGII rechazó la aprobación comercial.",
+  "code": "DGII_REJECTED",
+  "ecf": "E310000004111",
+  "commercialApproval": {
+    "decision": "Aceptado",
+    "dgiiStatus": "Rechazada",
+    "dgiiMessages": ["..."]
+  }
+}
+```
+
+### No fue posible enviarla a la DGII — `502`
+
+```json
+{
+  "message": "No fue posible enviar la aprobación comercial a la DGII. Intente de nuevo.",
+  "code": "DGII_ERROR",
+  "ecf": "E310000004111",
+  "commercialApproval": { "dgiiStatus": "Error" }
+}
+```
+
+Puedes reintentar: un e-CF cuya aprobación quedó en `Rechazada` o `Error`
+admite un nuevo envío.
+
+### Errores de validación y de estado
+
+| Código HTTP | `code`                      | Significado                                                                              |
+| ----------- | --------------------------- | ---------------------------------------------------------------------------------------- |
+| 400         | `INVALID_JSON`              | El cuerpo no es JSON válido.                                                             |
+| 400         | `INVALID_BODY`              | `approved` no es `true`/`false`, o `rejectionReason` no es texto.                        |
+| 400         | `MISSING_REJECTION_REASON`  | Rechazo sin motivo.                                                                      |
+| 400         | `REJECTION_REASON_TOO_LONG` | El motivo pasa de 250 caracteres.                                                        |
+| 401         | —                           | Token ausente, expirado o inválido (lo responde API Gateway, sin `code`).                |
+| 403         | —                           | Falta la `X-API-KEY` o no es válida para el entorno (sin `code`).                        |
+| 404         | `NOT_FOUND`                 | Tu cuenta no recibió ese e-NCF en este entorno.                                          |
+| 409         | `ALREADY_SENT`              | La DGII ya tomó una aprobación para este e-CF, o hay otro envío en curso para el mismo.   |
+| 422         | `NOT_RECEIVED`              | El e-CF se respondió como **No Recibido**; no admite aprobación comercial.               |
+| 500         | `CERTIFICATE_UNAVAILABLE`   | El certificado no pudo cargarse.                                                         |
+| 500         | `STORAGE_ERROR`             | No se pudo guardar el ACECF firmado. No se envió nada a la DGII.                          |
+| 502         | `DGII_AUTH_ERROR`           | No fue posible autenticar contra la DGII.                                                |
+
+## Estados
+
+`commercialApproval.dgiiStatus` del e-CF recibido:
+
+| Estado      | Significado                                                                       | ¿Se puede reenviar? |
+| ----------- | --------------------------------------------------------------------------------- | ------------------- |
+| `Enviando`  | El envío está en curso.                                                           | Espera la respuesta |
+| `Aprobada`  | La DGII tomó la aprobación (aceptación o rechazo, según `decision`).              | **No**              |
+| `Rechazada` | La DGII no la tomó. El motivo está en `dgiiMessages`.                             | Sí                  |
+| `Error`     | No llegó a la DGII o su respuesta no pudo confirmarse.                            | Sí                  |
+
+Un e-CF recibido **sin** `commercialApproval` todavía no tiene decisión.
+
+> **Timeouts**: si no recibes respuesta HTTP, el envío pudo haber llegado a la
+> DGII. Mientras el primero sigue en curso (hasta 5 minutos), un reintento
+> responde `409 ALREADY_SENT`, y también si la DGII ya la tomó; en esos casos no
+> se envía un segundo ACECF. Antes de reintentar después de ese plazo, consulta
+> el e-CF en **Documentos → Recibidos** para ver su `dgiiStatus`.
+
+## Ejemplos completos
+
+<Tabs items={["cURL", "JavaScript", "C#", "PHP"]}>
+<TabsContent value="cURL">
+
+```bash
+curl -X POST "https://ecf.api.mseller.app/TesteCF/aprobacion-comercial/E310000004111" \
+  -H "Authorization: Bearer $ID_TOKEN" \
+  -H "X-API-KEY: $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "approved": false, "rejectionReason": "El precio no coincide con la orden de compra 4512." }'
+```
+
+</TabsContent>
+<TabsContent value="JavaScript">
+
+```javascript
+const eNCF = 'E310000004111'
+const response = await fetch(`https://ecf.api.mseller.app/TesteCF/aprobacion-comercial/${eNCF}`, {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${idToken}`,
+    'X-API-KEY': apiKey,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ approved: true })
+})
+
+const result = await response.json()
+
+if (response.ok) {
+  console.log(result.message, '· Emisor notificado:', result.commercialApproval.issuerDelivered)
+} else {
+  console.error(result.code, result.message)
+}
+```
+
+</TabsContent>
+<TabsContent value="C#">
+
+```csharp
+using var client = new HttpClient();
+client.DefaultRequestHeaders.Authorization =
+    new AuthenticationHeaderValue("Bearer", idToken);
+client.DefaultRequestHeaders.Add("X-API-KEY", apiKey);
+
+var payload = new { approved = true };
+var content = new StringContent(
+    JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+
+var response = await client.PostAsync(
+    "https://ecf.api.mseller.app/TesteCF/aprobacion-comercial/E310000004111", content);
+
+Console.WriteLine(await response.Content.ReadAsStringAsync());
+```
+
+</TabsContent>
+<TabsContent value="PHP">
+
+```php
+$ch = curl_init('https://ecf.api.mseller.app/TesteCF/aprobacion-comercial/E310000004111');
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => [
+        'Authorization: Bearer ' . $idToken,
+        'X-API-KEY: ' . $apiKey,
+        'Content-Type: application/json',
+    ],
+    CURLOPT_POSTFIELDS => json_encode(['approved' => true]),
+]);
+
+$response = curl_exec($ch);
+curl_close($ch);
+
+print_r(json_decode($response, true));
+```
+
+</TabsContent>
+</Tabs>
+
+## Desde el portal
+
+En **Documentos → Recibidos**, la columna **Aprobación Comercial** muestra el
+estado de cada e-CF, y el botón de aprobación abre un diálogo para **Aceptar**
+o **Rechazar** (el rechazo pide el motivo). Portal y API escriben el mismo
+registro: una aprobación enviada por un camino se ve en el otro.
+
+## Buenas prácticas
+
+- **Prueba en `TesteCF`** antes de enviar decisiones reales en `eCF`.
+- **Decide después de revisar.** Lo habitual es esperar a conciliar la factura
+  con la orden de compra o la recepción de mercancía; aprobar al recibir el
+  webhook, sin revisión, te deja sin margen para rechazar una factura errónea.
+- **Explica los rechazos.** El motivo llega al emisor y a la DGII; un texto
+  claro ("precio distinto a la OC 4512") evita idas y vueltas.
+- **Revisa `issuerDelivered`.** Si es `false`, la DGII ya tiene tu decisión,
+  pero conviene avisar al proveedor por otro medio.
+- Si eres **emisor**, las aprobaciones que te envían tus clientes llegan con el
+  webhook [**Aprobación comercial**](/docs/integration/webhooks).
