@@ -295,5 +295,5 @@ Cada cliente puede tener hasta 10 API Keys creadas por el Proveedor; revoca una 
 
 - **Guarda las credenciales cifradas**: la contraseña y la API Key de cada cliente dan acceso completo a su facturación.
 - **Una cuenta por cliente**: nunca compartas credenciales ni API Keys entre clientes.
-- **Reintenta solo errores `5xx`**: los `4xx` indican un problema en los datos que no se resuelve reintentando. Ante un `409`, la cuenta ya existe.
+- **Reintenta solo errores `5xx`**: los `4xx` indican un problema en los datos que no se resuelve reintentando. Ante un `409`, la cuenta ya existe. La excepción es el `403` de una API Key recién creada: reintenta durante la propagación, como se explica en [La API Key tarda unos segundos en activarse](#la-api-key-tarda-unos-segundos-en-activarse).
 - **Pide autorización al cliente** antes de crear su cuenta; `authorizationConfirmed` deja constancia de ello.
