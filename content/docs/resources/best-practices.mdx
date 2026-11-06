@@ -47,7 +47,8 @@ Diseña tu sistema para manejar adecuadamente los diferentes tipos de errores qu
 
 ### Seguimiento y estado
 
-- Implementa un proceso periódico para actualizar el estado de los documentos enviados.
+- Recibe los cambios de estado por [webhook](/docs/integration/webhooks) (planes de pago) en vez de consultar.
+- Si consultas, hazlo solo para los documentos que en tu base de datos sigan pendientes o con error, nunca para los que ya tienen estado final. Ver [Errores comunes](/docs/resources/errores-comunes).
 - Notifica oportunamente a los usuarios sobre rechazos o problemas con los documentos.
 - Mantén un registro histórico de todos los eventos relacionados con cada documento.
 

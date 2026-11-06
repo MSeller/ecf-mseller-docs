@@ -24,6 +24,10 @@ Si usas [webhooks](/docs/integration/webhooks), no necesitas este ritmo: te avis
 
 Mientras la DGII no responde, el documento puede aparecer **En Cola**, **En Proceso** o **Enviado a la DGII**. No lo reenvíes: MSeller reintenta por su cuenta los documentos que se quedan atascados.
 
+<Callout type="warn" title="Revisa tu base de datos antes de consultar">
+  Antes de llamar a MSeller, mira el último estado que guardaste. Consulta **solo** los e-CF pendientes (**En Cola**, **Enviado a la DGII**, **En Proceso**) o con error (**Error**, **No encontrado**). Consultar en bucle documentos ya **Aceptados** es la causa más común de agotar la cuota. Ver [Errores comunes](/docs/resources/errores-comunes).
+</Callout>
+
 <Callout type="warn" title="No bloquees la venta esperando a la DGII">
   El `securityCode` y el `qr_url` llegan en la respuesta del envío. Con ellos ya puedes imprimir la factura ([ver representación impresa](/docs/integration/representacion-impresa)). Consulta el estado en segundo plano.
 </Callout>
