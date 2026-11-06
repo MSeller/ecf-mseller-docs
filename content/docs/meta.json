@@ -15,6 +15,7 @@
         "resources/ai-agents",
         "resources/faq",
         "resources/best-practices",
+        "resources/errores-comunes",
         "resources/glossary"
     ]
 }

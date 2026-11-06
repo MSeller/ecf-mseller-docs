@@ -1124,7 +1124,7 @@ Es importante entender que MSeller ECF utiliza un procesamiento asíncrono para 
 2. **Manejo de errores**: Implementa un sistema robusto para manejar los diferentes tipos de errores retornados tanto por la validación como por la DGII.
 3. **Reintentos**: Implementa una estrategia de reintentos para casos de fallos temporales, pero evita reintentar documentos con errores de validación.
 4. **Almacenamiento local**: Mantén una copia local de los documentos enviados para referencia futura.
-5. **Consulta periódica**: Implementa consultas periódicas para actualizar el estado de los documentos enviados.
+5. **Seguimiento del estado**: Usa el [webhook de Cambio de estado](/docs/integration/webhooks) o consulta solo los documentos que sigan pendientes o con error. Nunca vuelvas a consultar uno con estado final. Ver [Errores comunes](/docs/resources/errores-comunes).
 6. **Tiempo de espera**: Programa consultas con un tiempo de espera adecuado entre el envío del documento y la consulta de su estado.
 7. **Gestión de códigos de seguridad**: Almacena y gestiona correctamente los códigos de seguridad y URLs de QR para la representación impresa de las facturas.
 8. **Proceso de dos pasos**: En desarrollo, primero valida con `validate=true` y si es exitoso, envía sin el parámetro para el registro oficial.
