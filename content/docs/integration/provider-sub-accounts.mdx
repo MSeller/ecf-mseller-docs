@@ -263,6 +263,16 @@ GET /{entorno}/customer/provider/sub-accounts/linked
 
 `createdByProvider: false` indica una cuenta que el propio cliente creó y luego te autorizó a administrar.
 
+### Consumo de tus clientes
+
+Comprobantes del mes y requests por API Key de cada cliente, sin gastar cuota:
+
+```
+GET /{entorno}/customer/provider/sub-accounts/usage
+```
+
+Para un solo cliente, usa `GET /{entorno}/customer/usage` con `X-Tenant-Rnc`. Detalles y respuesta en [Consulta tu consumo](/docs/integration/consumo#consumo-de-tus-clientes-proveedores).
+
 ### Nueva contraseña para un cliente
 
 Solo para cuentas que creaste tú. Reemplaza la contraseña, cierra las sesiones abiertas de esa cuenta y notifica al cliente por correo.

@@ -47,7 +47,7 @@ Si el volumen o el tipo de negocio no corresponde a una micro o pequeña empresa
   - **cambies a un plan mayor** (se activa en segundos), o
   - **empiece el mes siguiente**. La cuota se reinicia el día 1 de cada mes (hora UTC), no en la fecha de tu cobro.
 - **No te subimos de plan solos** ni te cobramos excedentes.
-- **No enviamos aviso** cuando te acercas al límite. Si tu negocio crece, lleva tu propio conteo de envíos y cambia de plan antes de llegar al tope.
+- **No enviamos aviso** cuando te acercas al límite. [Consulta tu consumo](/docs/integration/consumo) por API (no gasta requests) y cambia de plan antes de llegar al tope.
 
 <Callout type="warn" title="Para restaurantes, tiendas y cualquier punto de venta">
   Un `429` en plena operación significa no poder facturar. Elige el plan con margen sobre tu volumen real del mes y vigila el consumo.
@@ -122,7 +122,9 @@ Todos empiezan como **Developer / Community**. Cuando tengas más de 10 clientes
 
 Los planes se venden por **comprobantes**, pero el API cuenta **requests** (cada llamada). Cada plan incluye unos **4 requests por comprobante**, suficiente para emitirlo y consultar su estado.
 
-Cuentan las llamadas que llevan `X-API-KEY`: envío de e-CF, consulta de estado (individual o en batch) y resumen de facturas. La autenticación y lo que haces en el portal **no** cuentan. La cuota se reinicia el día 1 de cada mes (UTC).
+Cuentan las llamadas que llevan `X-API-KEY`: envío de e-CF, consulta de estado (individual o en batch) y resumen de facturas. La autenticación, lo que haces en el portal y la [consulta de consumo](/docs/integration/consumo) **no** cuentan. La cuota se reinicia el día 1 de cada mes (UTC).
+
+Para saber cuánto llevas, consulta [`GET /customer/usage`](/docs/integration/consumo): te da los comprobantes del mes y los requests de cada API Key.
 
 <Callout type="warn">
   **Consultar el estado de un e-CF también consume un request.** Emitir y luego consultar son dos requests.

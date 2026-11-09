@@ -106,7 +106,7 @@ Cada `GET /documentos-ecf?ecf=...` cuesta un request. Si tienes varios pendiente
 
 ## 6. No llevar la cuenta de tu consumo
 
-Cuentan todas las llamadas que llevan `X-API-KEY`: envíos, consultas individuales y consultas en batch. Cada plan incluye unos **4 requests por comprobante**, suficiente para emitir y consultar con el ritmo de esta página. No avisamos antes de que se agote la cuota: lleva tu propio conteo y alerta cuando te acerques al límite. Ver [¿Cómo se cuenta el consumo?](/docs/getting-started/planes#cómo-se-cuenta-el-consumo).
+Cuentan todas las llamadas que llevan `X-API-KEY`: envíos, consultas individuales y consultas en batch. Cada plan incluye unos **4 requests por comprobante**, suficiente para emitir y consultar con el ritmo de esta página. No avisamos antes de que se agote la cuota: [consulta tu consumo](/docs/integration/consumo) una vez al día (no gasta requests) y alerta cuando te acerques al límite. Ver [¿Cómo se cuenta el consumo?](/docs/getting-started/planes#cómo-se-cuenta-el-consumo).
 
 <Callout type="warn" title="Un 429 en plena operación significa no poder facturar">
   Si tu integración recibe `429`, **detén los ciclos de consulta** antes de reintentar: cada consulta extra retrasa todavía más tus envíos. Los envíos de comprobantes y las consultas comparten la misma cuota.
@@ -121,4 +121,4 @@ Antes de salir a producción, comprueba que tu integración:
 - [ ] Usa el webhook de **Cambio de estado** si estás en un plan de pago.
 - [ ] Consulta con espera creciente, no con un temporizador fijo.
 - [ ] Agrupa las consultas en batch (hasta 100 e-CF por request).
-- [ ] Lleva la cuenta de los requests del mes.
+- [ ] Revisa a diario el [consumo del mes](/docs/integration/consumo) y alerta antes del límite.

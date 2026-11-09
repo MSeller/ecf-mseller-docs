@@ -1,0 +1,197 @@
+---
+title: "Consulta tu consumo"
+seoTitle: "Consumo del API de e-CF: Requests por API Key y Comprobantes del Mes"
+description: "Consulta por API cuántos comprobantes emitiste este mes y cuántos requests usó cada API Key, sin gastar tu cuota. Incluye la vista por cliente para Proveedores."
+---
+
+Puedes preguntarle al API cuánto llevas consumido en el mes: los **comprobantes** emitidos contra el límite de tu plan y los **requests** que usó cada API Key.
+
+<Callout title="En resumen">
+  - `GET /{entorno}/customer/usage` con tu `idToken`. **No lleva `X-API-KEY`** y **no consume requests** de tu cuota.
+  - Devuelve los comprobantes del mes contra tu plan y, en `requests`, el consumo de **cada API Key**: usados, restantes y el detalle por día.
+  - Los **Proveedores** consultan un cliente con el encabezado `X-Tenant-Rnc`, o todos sus clientes a la vez con `GET /{entorno}/customer/provider/sub-accounts/usage`.
+  - Consúltalo **una vez al día** o antes de un envío grande, no en cada request.
+</Callout>
+
+## Consumo de tu cuenta
+
+```
+GET /{entorno}/customer/usage
+Authorization: Bearer {idToken}
+```
+
+`{entorno}` es `TesteCF`, `CerteCF` o `eCF`. La respuesta es la misma en los tres: la cuota es de la cuenta, no del entorno.
+
+<Tabs items={["cURL", "JavaScript"]}>
+<TabsContent value="cURL">
+
+```bash
+curl https://ecf.api.mseller.app/eCF/customer/usage \
+  -H "Authorization: Bearer $ID_TOKEN"
+```
+
+</TabsContent>
+<TabsContent value="JavaScript">
+
+```javascript
+const response = await fetch("https://ecf.api.mseller.app/eCF/customer/usage", {
+  headers: { Authorization: `Bearer ${idToken}` },
+});
+const usage = await response.json();
+
+// Requests que le quedan a cada API Key este mes
+for (const key of usage.requests?.apiKeys ?? []) {
+  console.log(key.description, key.used, "usados,", key.remaining, "restantes");
+}
+```
+
+</TabsContent>
+</Tabs>
+
+### Respuesta
+
+```json
+{
+  "month": "2026-11",
+  "planId": "BASIC",
+  "documentCount": 412,
+  "limit": 1000,
+  "remaining": 588,
+  "percentUsed": 41,
+  "billableAmount": 152340.5,
+  "history": [
+    { "month": "2026-11", "documentCount": 412, "billableAmount": 152340.5 },
+    { "month": "2026-10", "documentCount": 875, "billableAmount": 310200 }
+  ],
+  "requests": {
+    "month": "2026-11",
+    "startDate": "2026-11-01",
+    "endDate": "2026-11-09",
+    "planId": "BASIC",
+    "limitPerKey": 4000,
+    "used": 1830,
+    "apiKeys": [
+      {
+        "id": "a1b2c3d4e5",
+        "description": "Integración ERP - Entorno: eCF",
+        "environment": "eCF",
+        "enabled": true,
+        "createdDate": "2026-10-01T14:00:00.000Z",
+        "used": 1830,
+        "remaining": 2170,
+        "daily": [
+          { "date": "2026-11-01", "used": 210 },
+          { "date": "2026-11-02", "used": 0 }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Comprobantes**
+
+| Campo | Qué es |
+| --- | --- |
+| `month` | Mes en curso (hora de Santo Domingo). |
+| `documentCount` | Comprobantes distintos emitidos este mes. Reenviar un e-CF rechazado **no** lo cuenta dos veces. |
+| `limit` / `remaining` / `percentUsed` | Comprobantes que incluye tu plan, los que quedan y el porcentaje usado. `null` si tu plan no tiene límite. |
+| `billableAmount` | Suma del `MontoTotal` de los comprobantes que facturan (E31, E32, E33, E44, E45, E46). |
+| `history` | Los últimos 6 meses, el más reciente primero. |
+
+**Requests (`requests`)**
+
+| Campo | Qué es |
+| --- | --- |
+| `month`, `startDate`, `endDate` | Período de la cuota: del día 1 a hoy, en **hora UTC**. |
+| `limitPerKey` | Requests al mes que incluye tu plan **por cada API Key**. |
+| `used` | Suma de los requests de todas tus API Keys. |
+| `apiKeys[].used` | Requests de esa API Key este mes. |
+| `apiKeys[].remaining` | Requests que le quedan este mes. Al llegar a `0`, esa key recibe `429`. |
+| `apiKeys[].daily` | Requests por día, del más antiguo al más reciente. |
+| `apiKeys[].environment` | Entorno para el que se creó la key (`TesteCF`, `CerteCF` o `eCF`). |
+
+El valor de la API Key **nunca** se devuelve; identifícala por `id` y `description`.
+
+Si en ese momento no podemos leer el consumo de requests, `requests` llega en `null` y el resto de la respuesta sigue igual. Vuelve a consultar más tarde.
+
+<Callout type="info" title="Dos meses distintos">
+  Los **comprobantes** se cuentan por mes de Santo Domingo. La cuota de **requests** se reinicia el día 1 a las 00:00 **UTC**, que son las **8:00 p. m. del último día del mes** en Santo Domingo. Por eso `month` puede diferir entre las dos secciones durante esas cuatro horas.
+</Callout>
+
+### Qué cuenta como request
+
+Solo las llamadas que llevan `X-API-KEY`: envío de e-CF, consulta de estado (individual o en batch), resumen de facturas y reintento de e-CF. **No cuentan** la autenticación, el portal, los webhooks ni esta consulta de consumo. Ver [¿Cómo se cuenta el consumo?](/docs/getting-started/planes#cómo-se-cuenta-el-consumo).
+
+### Ten en cuenta
+
+- **Retraso de unos minutos.** El conteo de requests puede ir unos minutos detrás de tu tráfico real.
+- **Cambio de plan en el mes.** Se muestra el consumo en el plan **actual** de la key. Los requests que hiciste antes de cambiar de plan no aparecen en `used`.
+
+## Consumo de tus clientes (Proveedores)
+
+Si eres [Proveedor](/docs/integration/provider-sub-accounts), puedes ver el consumo de las cuentas de tus clientes con el `idToken` de **tu** cuenta. Tampoco consume requests.
+
+### Un cliente
+
+Agrega el encabezado `X-Tenant-Rnc` con el RNC del cliente. La respuesta es la misma de [Consumo de tu cuenta](#consumo-de-tu-cuenta), con el plan y las API Keys **del cliente**.
+
+```bash
+curl https://ecf.api.mseller.app/eCF/customer/usage \
+  -H "Authorization: Bearer $ID_TOKEN" \
+  -H 'X-Tenant-Rnc: 131234567'
+```
+
+### Todos tus clientes
+
+```
+GET /{entorno}/customer/provider/sub-accounts/usage
+Authorization: Bearer {idToken del Proveedor}
+```
+
+```json
+{
+  "providerRnc": "101000001",
+  "totals": {
+    "subAccounts": 2,
+    "documentCount": 530,
+    "billableAmount": 210450.75,
+    "requests": 2400
+  },
+  "subAccounts": [
+    {
+      "rnc": "131234567",
+      "businessName": "Ferretería El Clavo SRL",
+      "usage": { "month": "2026-11", "documentCount": 412, "requests": { "used": 1830 } }
+    },
+    {
+      "rnc": "131765432",
+      "businessName": "Colmado La Esquina",
+      "usage": null,
+      "error": {
+        "code": "USAGE_UNAVAILABLE",
+        "message": "No se pudo leer el consumo de esta subcuenta."
+      }
+    }
+  ]
+}
+```
+
+- Incluye las cuentas **activas** vinculadas a tu cuenta Proveedor. Cada `usage` tiene la forma completa de [la respuesta de una cuenta](#respuesta) (abreviada aquí).
+- `totals` suma solo los clientes cuyo consumo se pudo leer.
+- Si un cliente falla, llega con `usage: null` y un `error`; los demás se devuelven igual.
+
+### Errores
+
+| Código | `code` | Qué significa |
+| --- | --- | --- |
+| 403 | `NOT_A_PROVIDER` | Tu cuenta no es Proveedor. |
+| 403 | `NOT_YOUR_SUB_ACCOUNT` | El RNC de `X-Tenant-Rnc` no es una cuenta vinculada a ti. |
+| 400 | `INVALID_TENANT` | El RNC de `X-Tenant-Rnc` no es válido. |
+| 409 | `SUB_ACCOUNT_CHANGED` | La cuenta del cliente cambió y ya no se puede consultar desde tu cuenta. [Contáctanos](mailto:hello@mseller.app). |
+
+## Buenas prácticas
+
+- **Consulta una vez al día**, o antes de un lote grande. El consumo no cambia lo suficiente como para consultarlo en cada envío.
+- **Alerta antes del límite.** Por ejemplo, avisa cuando `remaining` de una key baje del 20 % de `limitPerKey`, y [cambia de plan](/docs/getting-started/planes) antes de recibir un `429`.
+- **Compara con tu propio conteo.** Si `used` crece mucho más que tus envíos, revisa que no estés [consultando en bucle](/docs/resources/errores-comunes).
