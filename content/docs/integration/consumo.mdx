@@ -70,6 +70,7 @@ for (const key of usage.requests?.apiKeys ?? []) {
     "planId": "BASIC",
     "limitPerKey": 4000,
     "used": 1830,
+    "complete": true,
     "apiKeys": [
       {
         "id": "a1b2c3d4e5",
@@ -105,15 +106,16 @@ for (const key of usage.requests?.apiKeys ?? []) {
 | --- | --- |
 | `month`, `startDate`, `endDate` | Período de la cuota: del día 1 a hoy, en **hora UTC**. |
 | `limitPerKey` | Requests al mes que incluye tu plan **por cada API Key**. |
-| `used` | Suma de los requests de todas tus API Keys. |
-| `apiKeys[].used` | Requests de esa API Key este mes. |
-| `apiKeys[].remaining` | Requests que le quedan este mes. Al llegar a `0`, esa key recibe `429`. |
-| `apiKeys[].daily` | Requests por día, del más antiguo al más reciente. |
+| `used` | Suma de los requests de las API Keys que se pudieron leer. |
+| `complete` | `false` si no se pudo leer el consumo de alguna API Key (su `used` llega en `null`). |
+| `apiKeys[].used` | Requests de esa API Key este mes. `null` si no se pudo leer: **nunca** es un `0` falso. |
+| `apiKeys[].remaining` | Requests que le quedan este mes. Al llegar a `0`, esa key recibe `429`. `null` si no se conoce. |
+| `apiKeys[].daily` | Requests por día, del más antiguo al más reciente. Vacío si no se pudo leer. |
 | `apiKeys[].environment` | Entorno para el que se creó la key (`TesteCF`, `CerteCF` o `eCF`). |
 
 El valor de la API Key **nunca** se devuelve; identifícala por `id` y `description`.
 
-Si en ese momento no podemos leer el consumo de requests, `requests` llega en `null` y el resto de la respuesta sigue igual. Vuelve a consultar más tarde.
+Si en ese momento no podemos leer el consumo de requests, `requests` llega en `null` y el resto de la respuesta sigue igual. Si solo falla una API Key, esa key llega con `used: null` y las demás se reportan normalmente. En ambos casos, vuelve a consultar más tarde.
 
 <Callout type="info" title="Dos meses distintos">
   Los **comprobantes** se cuentan por mes de Santo Domingo. La cuota de **requests** se reinicia el día 1 a las 00:00 **UTC**, que son las **8:00 p. m. del último día del mes** en Santo Domingo. Por eso `month` puede diferir entre las dos secciones durante esas cuatro horas.
@@ -121,7 +123,15 @@ Si en ese momento no podemos leer el consumo de requests, `requests` llega en `n
 
 ### Qué cuenta como request
 
-Solo las llamadas que llevan `X-API-KEY`: envío de e-CF, consulta de estado (individual o en batch), resumen de facturas y reintento de e-CF. **No cuentan** la autenticación, el portal, los webhooks ni esta consulta de consumo. Ver [¿Cómo se cuenta el consumo?](/docs/getting-started/planes#cómo-se-cuenta-el-consumo).
+Solo las llamadas que llevan `X-API-KEY`:
+
+- Envío y consulta de e-CF: `POST` y `GET /documentos-ecf`, y la consulta en batch `POST /documentos-ecf/status/batch`.
+- Resumen de facturas: `POST /resumen-facturas`.
+- Reintento de un e-CF: `POST /retry-ecf/{ecf}`.
+- Aprobación comercial: `POST /aprobacion-comercial/{ecf}`.
+- Descarga de un e-CF: `GET /v1/ecf/{eNCF}`, `/v1/ecf/{eNCF}/xml` y `/v1/ecf/{eNCF}/pdf`.
+
+**No cuentan** la autenticación, el portal, los webhooks ni esta consulta de consumo. Ver [¿Cómo se cuenta el consumo?](/docs/getting-started/planes#cómo-se-cuenta-el-consumo).
 
 ### Ten en cuenta
 
@@ -180,6 +190,7 @@ Authorization: Bearer {idToken del Proveedor}
 - Incluye las cuentas **activas** vinculadas a tu cuenta Proveedor. Cada `usage` tiene la forma completa de [la respuesta de una cuenta](#respuesta) (abreviada aquí).
 - `totals` suma solo los clientes cuyo consumo se pudo leer.
 - Si un cliente falla, llega con `usage: null` y un `error`; los demás se devuelven igual.
+- Con muchos clientes, la respuesta puede llegar **parcial**: los que no alcanzamos a leer llegan con `USAGE_UNAVAILABLE`. Consúltalos uno por uno con `X-Tenant-Rnc`.
 
 ### Errores
 
