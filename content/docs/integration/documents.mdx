@@ -237,11 +237,23 @@ Este ejemplo muestra una factura de consumo (tipo 32) con múltiples productos q
 
 ### Parámetro de validación
 
-Agrega el parámetro `validate=true` al endpoint para activar la **validación estricta** antes del envío:
+La **validación estricta** revisa el documento antes de firmarlo y enviarlo a la DGII. Si encuentra errores, responde `400 ECF_VALIDATION_FAILED` y el documento no se envía.
+
+Cada entorno tiene un modo por defecto, y puedes cambiarlo en cada envío con el parámetro `validate`:
+
+| Entorno    | Sin el parámetro `validate`               | `validate=true` | `validate=false` |
+| ---------- | ----------------------------------------- | --------------- | ---------------- |
+| `TesteCF`  | **Validación estricta**                   | Estricta        | Solo advertencia |
+| `CerteCF`  | **Validación estricta**                   | Estricta        | Solo advertencia |
+| `eCF`      | Solo advertencia (por ahora)              | Estricta        | Solo advertencia |
 
 ```
 POST /{entorno}/documentos-ecf?validate=true
 ```
+
+<Callout type="info" title="La validación estricta será el modo por defecto en producción">
+  En `TesteCF` y `CerteCF` la validación estricta ya está activa por defecto, para que detectes los errores antes de pasar a producción. En `eCF` se activará más adelante; te avisaremos antes. Si tus documentos pasan en `TesteCF` sin `validate=false`, ya están listos.
+</Callout>
 
 <Callout type="warn" title="validate=true no es un envío de prueba">
   `validate=true` **no** es un modo de solo validación. Si el documento es válido, MSeller lo firma, lo registra y **lo envía a la DGII**, y el e-NCF queda usado. La respuesta es la misma de un envío normal (`internalTrackId`, `securityCode`, `qr_url`, `signedDate`).
@@ -249,7 +261,7 @@ POST /{entorno}/documentos-ecf?validate=true
   **No vuelvas a enviar el mismo e-NCF** después de una respuesta exitosa con `validate=true`. En TesteCF, MSeller deja pasar el reenvío y la DGII lo rechaza con *«La combinación e-NCF y código de seguridad ya han sido utilizados previamente»* ([por qué](#buenas-prácticas)).
 </Callout>
 
-| Caso                                      | Con `validate=true`                                          | Sin el parámetro                                           |
+| Caso                                      | Validación estricta                                          | Solo advertencia                                           |
 | ----------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------- |
 | El JSON tiene errores de validación       | 400 `ECF_VALIDATION_FAILED`. No se firma, no se envía a la DGII y no se usa el e-NCF. | Se registra una advertencia y el documento se envía igual (la DGII puede rechazarlo). |
 | El JSON es válido                         | Se firma y **se envía a la DGII**. El e-NCF queda usado.     | Se firma y se envía a la DGII. El e-NCF queda usado.       |
@@ -316,7 +328,7 @@ Si se encuentran errores, recibirás un detalle de los problemas encontrados:
 | validationErrors[].details | Objeto con información adicional del error (valores esperados, recibidos, etc.) |
 | validationErrors[].name    | Nombre del tipo de error (`EcfValidationError`)                                 |
 
-> **💡 Recomendación**: Usa `validate=true` en todos tus envíos, en TesteCF y en producción, para que los documentos con errores se rechacen antes de llegar a la DGII. Recuerda que un documento válido **sí se envía**.
+> **💡 Recomendación**: En producción (`eCF`), envía `validate=true` desde ya para que los documentos con errores se rechacen antes de llegar a la DGII. En `TesteCF` y `CerteCF` no hace falta: la validación estricta ya es el modo por defecto. Recuerda que un documento válido **sí se envía**.
 
 ### Ejemplo de envío con validación estricta
 
