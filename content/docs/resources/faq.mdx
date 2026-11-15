@@ -124,7 +124,7 @@ Las dos cosas. El envío te devuelve el `qr_url`, el `securityCode` y la fecha d
 
 ### ¿Puedo validar un documento sin enviarlo a la DGII?
 
-Sí, con `?validate=true` en el envío. No se envía a la DGII ni consume secuencia. Ver [parámetro de validación](/docs/integration/documents#parámetro-de-validación).
+No. `?validate=true` hace que MSeller rechace el documento (error 400) si tiene errores, y en ese caso no se envía a la DGII ni se usa el e-NCF. Pero si el documento es válido, **se envía a la DGII** y el e-NCF queda usado: no lo vuelvas a enviar. Ver [parámetro de validación](/docs/integration/documents#parámetro-de-validación).
 
 ### ¿Necesito guardar los XML?
 
