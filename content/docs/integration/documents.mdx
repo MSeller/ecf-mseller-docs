@@ -246,7 +246,7 @@ POST /{entorno}/documentos-ecf?validate=true
 <Callout type="warn" title="validate=true no es un envío de prueba">
   `validate=true` **no** es un modo de solo validación. Si el documento es válido, MSeller lo firma, lo registra y **lo envía a la DGII**, y el e-NCF queda usado. La respuesta es la misma de un envío normal (`internalTrackId`, `securityCode`, `qr_url`, `signedDate`).
 
-  **No vuelvas a enviar el mismo e-NCF** después de una respuesta exitosa con `validate=true`. Si lo reenvías, la DGII lo rechaza con *«La combinación e-NCF y código de seguridad ya han sido utilizados previamente»*.
+  **No vuelvas a enviar el mismo e-NCF** después de una respuesta exitosa con `validate=true`. En TesteCF, MSeller deja pasar el reenvío y la DGII lo rechaza con *«La combinación e-NCF y código de seguridad ya han sido utilizados previamente»* ([por qué](#buenas-prácticas)).
 </Callout>
 
 | Caso                                      | Con `validate=true`                                          | Sin el parámetro                                           |
@@ -919,7 +919,7 @@ print_r($resultado);
 </TabsContent>
 </Tabs>
 
-> **Nota:** En el ambiente de prueba debes buscar una secuencia aleatoria que no haya sido utilizada, debes tratar con diferentes secuencias
+> **Nota:** En TesteCF usa un e-NCF que no hayas usado antes, por ejemplo uno de un rango alto y propio. MSeller no bloquea los e-NCF repetidos en los entornos de prueba, porque la DGII reinicia periódicamente sus secuencias y en CerteCF puede ser necesario reenviar el mismo e-NCF. Si la DGII ya tiene registrado ese número, lo rechaza como ya utilizado.
 
 ### Respuesta exitosa
 
@@ -1130,7 +1130,7 @@ Es importante entender que MSeller ECF utiliza un procesamiento asíncrono para 
 5. **Seguimiento del estado**: Usa el [webhook de Cambio de estado](/docs/integration/webhooks) o consulta solo los documentos que sigan pendientes o con error. Nunca vuelvas a consultar uno con estado final. Ver [Errores comunes](/docs/resources/errores-comunes).
 6. **Tiempo de espera**: Programa consultas con un tiempo de espera adecuado entre el envío del documento y la consulta de su estado.
 7. **Gestión de códigos de seguridad**: Almacena y gestiona correctamente los códigos de seguridad y URLs de QR para la representación impresa de las facturas.
-8. **Un e-NCF se envía una sola vez**: No reenvíes un documento que ya recibió `internalTrackId`, con o sin `validate=true`. Si se corta la conexión o hay un timeout, [consulta el e-NCF](/docs/integration/document-queries) antes de reintentar. Si tu sistema recibe eventos repetidos (por ejemplo, webhooks de una tienda en línea), procesa cada pedido una sola vez. En TesteCF, MSeller no bloquea un e-NCF repetido y la DGII lo rechaza como ya utilizado; en producción, MSeller lo rechaza con `DUPLICATE_NCF`.
+8. **Un e-NCF se envía una sola vez**: No reenvíes un documento que ya recibió `internalTrackId`, con o sin `validate=true`. Si se corta la conexión o hay un timeout, [consulta el e-NCF](/docs/integration/document-queries) antes de reintentar. Si tu sistema recibe eventos repetidos (por ejemplo, webhooks de una tienda en línea), procesa cada pedido una sola vez. En producción (eCF), MSeller rechaza un e-NCF ya registrado con `DUPLICATE_NCF` y no lo envía a la DGII. En TesteCF y CerteCF, MSeller **no** bloquea un e-NCF repetido, por estas razones: la DGII reinicia periódicamente las secuencias en sus entornos de prueba, así que un número usado puede quedar libre otra vez; y en CerteCF el proceso de certificación puede requerir reenviar el mismo e-NCF. En esos entornos, si reenvías un e-NCF que la DGII ya tiene registrado, la DGII lo rechaza con *«La combinación e-NCF y código de seguridad ya han sido utilizados previamente»*.
 
 ## Recursos y herramientas para la adaptación de documentos
 
