@@ -9,7 +9,7 @@ description: "Cómo emitir y enviar comprobantes fiscales electrónicos (e-CF) a
   2. Recibes al instante el `securityCode` y el `qr_url` para la factura impresa.
   3. Unos segundos después, [consulta el estado](/docs/integration/document-queries) para saber si la DGII lo aceptó.
 
-  Durante el desarrollo usa `?validate=true` para detectar errores sin enviar a la DGII ([ver más](#parámetro-de-validación)).
+  Usa `?validate=true` para que MSeller rechace el JSON si tiene errores, antes de firmarlo. Si el JSON es válido, **el documento se envía a la DGII** igual que sin el parámetro ([ver más](#parámetro-de-validación)).
 </Callout>
 
 ## Envío de documentos
@@ -237,33 +237,35 @@ Este ejemplo muestra una factura de consumo (tipo 32) con múltiples productos q
 
 ### Parámetro de validación
 
-Puedes agregar el parámetro `validate=true` al endpoint para validar el documento antes de enviarlo a la DGII:
+Agrega el parámetro `validate=true` al endpoint para activar la **validación estricta** antes del envío:
 
 ```
 POST /{entorno}/documentos-ecf?validate=true
 ```
 
-> **⚠️ IMPORTANTE - Esta opción está en fase de pruebas**: Esta opción no está activada por defecto hasta completar la fase de depuración y pruebas. Durante este período, ningún documento será validado automáticamente. Una vez estabilizado el feature, esta validación no será opcional pero será controlada explícitamente mediante el parámetro `validate=false`.
+<Callout type="warn" title="validate=true no es un envío de prueba">
+  `validate=true` **no** es un modo de solo validación. Si el documento es válido, MSeller lo firma, lo registra y **lo envía a la DGII**, y el e-NCF queda usado. La respuesta es la misma de un envío normal (`internalTrackId`, `securityCode`, `qr_url`, `signedDate`).
 
-Cuando este parámetro está presente, MSeller ECF realiza una **validación completa del documento** verificando que cumpla con todos los requisitos y parámetros necesarios antes de procesarlo y enviarlo a la DGII:
+  **No vuelvas a enviar el mismo e-NCF** después de una respuesta exitosa con `validate=true`. En TesteCF, MSeller deja pasar el reenvío y la DGII lo rechaza con *«La combinación e-NCF y código de seguridad ya han sido utilizados previamente»* ([por qué](#buenas-prácticas)).
+</Callout>
 
-- **Detecta errores de formato** antes de registrar el documento
-- **Verifica cálculos y totales** según las especificaciones de la DGII
-- **Valida campos requeridos** y sus valores permitidos
-- **Comprueba la estructura del documento** contra los esquemas XSD oficiales
-- **Ahorra secuencias de e-NCF** al evitar envíos con errores
-- **Debugging eficiente** con mensajes de error detallados antes del envío oficial
+| Caso                                      | Con `validate=true`                                          | Sin el parámetro                                           |
+| ----------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------- |
+| El JSON tiene errores de validación       | 400 `ECF_VALIDATION_FAILED`. No se firma, no se envía a la DGII y no se usa el e-NCF. | Se registra una advertencia y el documento se envía igual (la DGII puede rechazarlo). |
+| El JSON es válido                         | Se firma y **se envía a la DGII**. El e-NCF queda usado.     | Se firma y se envía a la DGII. El e-NCF queda usado.       |
 
-**Respuesta de validación exitosa:**
+La validación estricta revisa:
 
-Si el documento pasa todas las validaciones, recibirás una respuesta indicando que el documento es válido:
+- **Formato** del documento y de sus campos
+- **Cálculos y totales** según las especificaciones de la DGII
+- **Campos requeridos** y sus valores permitidos
+- **Estructura** del documento según los esquemas XSD oficiales
 
-```json
-{
-  "valid": true,
-  "message": "El documento ha sido validado correctamente y cumple con todos los requisitos de la DGII"
-}
-```
+Así evitas que un documento con errores llegue a la DGII y que se pierda ese e-NCF.
+
+**Respuesta cuando el documento es válido:**
+
+Es la misma [respuesta exitosa](#respuesta-exitosa) de un envío normal, porque el documento ya se envió a la DGII. Guarda el `internalTrackId` y [consulta el estado](/docs/integration/document-queries); no lo envíes otra vez.
 
 **Respuesta de validación con errores:**
 
@@ -314,13 +316,11 @@ Si se encuentran errores, recibirás un detalle de los problemas encontrados:
 | validationErrors[].details | Objeto con información adicional del error (valores esperados, recibidos, etc.) |
 | validationErrors[].name    | Nombre del tipo de error (`EcfValidationError`)                                 |
 
-> **💡 Recomendación**: Usa `validate=true` durante el desarrollo y pruebas para asegurar que tus documentos cumplan con todos los requisitos antes de enviarlos oficialmente a la DGII.
+> **💡 Recomendación**: Usa `validate=true` en todos tus envíos, en TesteCF y en producción, para que los documentos con errores se rechacen antes de llegar a la DGII. Recuerda que un documento válido **sí se envía**.
 
-> **⚠️ Nota importante**: Cuando usas `validate=true`, el documento **NO se envía a la DGII** y **NO se consume una secuencia de e-NCF**. Solo se realiza la validación del formato y contenido.
+### Ejemplo de envío con validación estricta
 
-### Ejemplo de validación de documento
-
-Antes de enviar un documento oficialmente, puedes validarlo usando el parámetro `validate=true`:
+Envía el documento con `validate=true`. Si la respuesta es exitosa, el documento ya se envió a la DGII: guarda los datos y no lo reenvíes.
 
 <Tabs items={["cURL", "JavaScript", "C#", "PHP"]}>
 <TabsContent value="cURL">
@@ -353,7 +353,7 @@ curl -X POST \
 <TabsContent value="JavaScript">
 
 ```javascript
-async function validarDocumento(documento) {
+async function enviarConValidacion(documento) {
   const idToken = localStorage.getItem("idToken");
 
   try {
@@ -372,11 +372,12 @@ async function validarDocumento(documento) {
 
     const resultado = await response.json();
 
-    // Verificar si la validación fue exitosa
-    if (response.ok && resultado.valid) {
-      console.log("✓ Documento válido, listo para enviar");
-      // Ahora puedes enviarlo sin el parámetro validate
-      return enviarDocumento(documento);
+    // Respuesta exitosa: el documento pasó la validación y YA se envió a la DGII
+    if (response.ok && resultado.internalTrackId) {
+      console.log("✓ Documento válido y enviado:", resultado.ecf);
+      // Guarda internalTrackId, securityCode, qr_url y signedDate.
+      // NO vuelvas a enviar este documento: consulta su estado más tarde.
+      return resultado;
     } else if (resultado.code === "ECF_VALIDATION_FAILED") {
       console.error("✗ Errores de validación encontrados:");
       console.error(`Request ID: ${resultado.requestId}`);
@@ -425,7 +426,7 @@ public class MSellercfClient
         _apiKey = apiKey;
     }
 
-    public async Task<JObject> ValidarDocumento(JObject documento)
+    public async Task<JObject> EnviarConValidacion(JObject documento)
     {
         _client.DefaultRequestHeaders.Clear();
         _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_idToken}");
@@ -443,12 +444,13 @@ public class MSellercfClient
         var responseJson = await response.Content.ReadAsStringAsync();
         var resultado = JObject.Parse(responseJson);
 
-        // Verificar si la validación fue exitosa
-        if (response.IsSuccessStatusCode && resultado["valid"]?.ToObject<bool>() == true)
+        // Respuesta exitosa: el documento pasó la validación y YA se envió a la DGII
+        if (response.IsSuccessStatusCode && resultado["internalTrackId"] != null)
         {
-            Console.WriteLine("✓ Documento válido, listo para enviar");
-            // Ahora puedes enviarlo sin el parámetro validate
-            return await EnviarDocumento(documento);
+            Console.WriteLine($"✓ Documento válido y enviado: {resultado["ecf"]}");
+            // Guarda internalTrackId, securityCode, qr_url y signedDate.
+            // NO vuelvas a enviar este documento: consulta su estado más tarde.
+            return resultado;
         }
         else if (resultado["code"]?.ToString() == "ECF_VALIDATION_FAILED")
         {
@@ -488,7 +490,7 @@ public class MSellercfClient
 
 ```php
 <?php
-function validarDocumento($documento, $idToken, $apiKey) {
+function enviarConValidacion($documento, $idToken, $apiKey) {
     $url = 'https://ecf.api.mseller.app/TesteCF/documentos-ecf?validate=true';
 
     $options = [
@@ -511,11 +513,12 @@ function validarDocumento($documento, $idToken, $apiKey) {
 
     $resultado = json_decode($result, true);
 
-    // Verificar si la validación fue exitosa
-    if (isset($resultado['valid']) && $resultado['valid'] === true) {
-        echo "✓ Documento válido, listo para enviar\n";
-        // Ahora puedes enviarlo sin el parámetro validate
-        return enviarDocumento($documento, $idToken, $apiKey);
+    // Respuesta exitosa: el documento pasó la validación y YA se envió a la DGII
+    if (isset($resultado['internalTrackId'])) {
+        echo "✓ Documento válido y enviado: " . $resultado['ecf'] . "\n";
+        // Guarda internalTrackId, securityCode, qr_url y signedDate.
+        // NO vuelvas a enviar este documento: consulta su estado más tarde.
+        return $resultado;
     } else if (isset($resultado['code']) && $resultado['code'] === 'ECF_VALIDATION_FAILED') {
         echo "✗ Errores de validación encontrados:\n";
         echo "Request ID: " . $resultado['requestId'] . "\n";
@@ -542,7 +545,7 @@ function validarDocumento($documento, $idToken, $apiKey) {
 // Uso
 $idToken = $_SESSION['idToken'];
 $apiKey = 'tu_api_key';
-$resultado = validarDocumento($documento, $idToken, $apiKey);
+$resultado = enviarConValidacion($documento, $idToken, $apiKey);
 ?>
 ```
 
@@ -916,7 +919,7 @@ print_r($resultado);
 </TabsContent>
 </Tabs>
 
-> **Nota:** En el ambiente de prueba debes buscar una secuencia aleatoria que no haya sido utilizada, debes tratar con diferentes secuencias
+> **Nota:** En TesteCF usa un e-NCF que no hayas usado antes, por ejemplo uno de un rango alto y propio. MSeller no bloquea los e-NCF repetidos en los entornos de prueba, porque la DGII reinicia periódicamente sus secuencias y en CerteCF puede ser necesario reenviar el mismo e-NCF. Si la DGII ya tiene registrado ese número, lo rechaza como ya utilizado.
 
 ### Respuesta exitosa
 
@@ -1120,14 +1123,14 @@ Es importante entender que MSeller ECF utiliza un procesamiento asíncrono para 
 
 ## Buenas prácticas
 
-1. **Validación previa con parámetro validate**: Usa el parámetro `validate=true` durante el desarrollo para validar tus documentos antes de enviarlos oficialmente. Esto te permite detectar errores sin consumir secuencias de e-NCF.
+1. **Validación estricta con `validate=true`**: Úsalo para que los documentos con errores se rechacen antes de llegar a la DGII y no pierdas esos e-NCF. Un documento válido **sí se envía** a la DGII.
 2. **Manejo de errores**: Implementa un sistema robusto para manejar los diferentes tipos de errores retornados tanto por la validación como por la DGII.
 3. **Reintentos**: Implementa una estrategia de reintentos para casos de fallos temporales, pero evita reintentar documentos con errores de validación.
 4. **Almacenamiento local**: Mantén una copia local de los documentos enviados para referencia futura.
 5. **Seguimiento del estado**: Usa el [webhook de Cambio de estado](/docs/integration/webhooks) o consulta solo los documentos que sigan pendientes o con error. Nunca vuelvas a consultar uno con estado final. Ver [Errores comunes](/docs/resources/errores-comunes).
 6. **Tiempo de espera**: Programa consultas con un tiempo de espera adecuado entre el envío del documento y la consulta de su estado.
 7. **Gestión de códigos de seguridad**: Almacena y gestiona correctamente los códigos de seguridad y URLs de QR para la representación impresa de las facturas.
-8. **Proceso de dos pasos**: En desarrollo, primero valida con `validate=true` y si es exitoso, envía sin el parámetro para el registro oficial.
+8. **Un e-NCF se envía una sola vez**: No reenvíes un documento que ya recibió `internalTrackId`, con o sin `validate=true`. Si se corta la conexión o hay un timeout, [consulta el e-NCF](/docs/integration/document-queries) antes de reintentar. Si tu sistema recibe eventos repetidos (por ejemplo, webhooks de una tienda en línea), procesa cada pedido una sola vez. En producción (eCF), MSeller rechaza un e-NCF ya registrado con `DUPLICATE_NCF` y no lo envía a la DGII. En TesteCF y CerteCF, MSeller **no** bloquea un e-NCF repetido, por estas razones: la DGII reinicia periódicamente las secuencias en sus entornos de prueba, así que un número usado puede quedar libre otra vez; y en CerteCF el proceso de certificación puede requerir reenviar el mismo e-NCF. En esos entornos, si reenvías un e-NCF que la DGII ya tiene registrado, la DGII lo rechaza con *«La combinación e-NCF y código de seguridad ya han sido utilizados previamente»*.
 
 ## Recursos y herramientas para la adaptación de documentos
 
