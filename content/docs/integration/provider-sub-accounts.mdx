@@ -85,6 +85,7 @@ La cuenta del cliente es la misma en los tres entornos. El entorno de la URL sol
 | `businessAddress` | No | Dirección. |
 | `businessCity` | No | Ciudad. |
 | `authorizationConfirmed` | Sí | Debe ser `true`: confirmas que el cliente te autorizó a crear la cuenta en su nombre. |
+| `termsAccepted` | Sí | Debe ser `true`: confirmas que el cliente aceptó los [Términos y Condiciones](https://ecf.mseller.app/terminos) y la [Política de Privacidad](https://ecf.mseller.app/privacidad) de eCF MSeller. Si envías `false`, la solicitud se rechaza. |
 | `certificate` | No | Certificado digital del cliente: `{ "content": "<.p12 en Base64>", "filename": "certificado.p12" }`. |
 | `certificatePassword` | Si envías `certificate` | Contraseña del certificado. |
 | `apiKeyEnvironment` | No | Entorno de la API Key: `TesteCF`, `CerteCF` o `eCF`. Por defecto, el entorno de la URL. |
@@ -109,6 +110,7 @@ curl -X POST https://ecf.api.mseller.app/TesteCF/customer/provider/sub-accounts 
     "familyName": "Pérez",
     "businessPhone": "8095550000",
     "authorizationConfirmed": true,
+    "termsAccepted": true,
     "certificate": {
       "content": "'"$(base64 < certificado.p12 | tr -d '\n')"'",
       "filename": "certificado.p12"
@@ -142,6 +144,7 @@ async function createClientAccount(providerIdToken: string) {
       givenName: "Ana",
       familyName: "Pérez",
       authorizationConfirmed: true,
+      termsAccepted: true,
       certificate: {
         content: certificate.toString("base64"),
         filename: "certificado.p12",
@@ -307,3 +310,4 @@ Cada cliente puede tener hasta 10 API Keys creadas por el Proveedor; revoca una 
 - **Una cuenta por cliente**: nunca compartas credenciales ni API Keys entre clientes.
 - **Reintenta solo errores `5xx`**: los `4xx` indican un problema en los datos que no se resuelve reintentando. Ante un `409`, la cuenta ya existe. La excepción es el `403` de una API Key recién creada: reintenta durante la propagación, como se explica en [La API Key tarda unos segundos en activarse](#la-api-key-tarda-unos-segundos-en-activarse).
 - **Pide autorización al cliente** antes de crear su cuenta; `authorizationConfirmed` deja constancia de ello.
+- **Muestra los términos al cliente** y pídele que los acepte antes de crear su cuenta; `termsAccepted` deja constancia de ello. La cuenta guarda la versión de los términos aceptada y la fecha.
