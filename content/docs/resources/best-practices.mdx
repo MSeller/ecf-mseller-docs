@@ -37,7 +37,7 @@ Diseña tu sistema para manejar adecuadamente los diferentes tipos de errores qu
 
 - Valida localmente los documentos antes de enviarlos para reducir rechazos.
 - Implementa pruebas unitarias para verificar la correcta generación de los documentos JSON.
-- Usa `?validate=true` para que los documentos con errores se rechacen antes de llegar a la DGII. Si el documento es válido, se envía: no lo reenvíes.
+- La validación estricta está activa por defecto: los documentos con errores se rechazan antes de llegar a la DGII. No envíes `?validate=false`. Si el documento es válido, se envía: no lo reenvíes, y revisa el arreglo `warnings` de la respuesta.
 
 ### Envío de documentos
 

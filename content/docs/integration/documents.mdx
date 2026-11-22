@@ -9,7 +9,7 @@ description: "Cómo emitir y enviar comprobantes fiscales electrónicos (e-CF) a
   2. Recibes al instante el `securityCode` y el `qr_url` para la factura impresa.
   3. Unos segundos después, [consulta el estado](/docs/integration/document-queries) para saber si la DGII lo aceptó.
 
-  Usa `?validate=true` para que MSeller rechace el JSON si tiene errores, antes de firmarlo. Si el JSON es válido, **el documento se envía a la DGII** igual que sin el parámetro ([ver más](#parámetro-de-validación)).
+  MSeller valida el JSON antes de firmarlo y, si tiene errores, lo rechaza con `400 ECF_VALIDATION_FAILED` sin enviarlo a la DGII. Esta validación estricta está activa por defecto en todos los entornos ([ver más](#parámetro-de-validación)).
 </Callout>
 
 ## Envío de documentos
@@ -245,14 +245,14 @@ Cada entorno tiene un modo por defecto, y puedes cambiarlo en cada envío con el
 | ---------- | ----------------------------------------- | --------------- | ---------------- |
 | `TesteCF`  | **Validación estricta**                   | Estricta        | Solo advertencia |
 | `CerteCF`  | **Validación estricta**                   | Estricta        | Solo advertencia |
-| `eCF`      | Solo advertencia (por ahora)              | Estricta        | Solo advertencia |
+| `eCF`      | **Validación estricta**                   | Estricta        | Solo advertencia |
 
 ```
 POST /{entorno}/documentos-ecf?validate=true
 ```
 
-<Callout type="info" title="La validación estricta será el modo por defecto en producción">
-  En `TesteCF` y `CerteCF` la validación estricta ya está activa por defecto, para que detectes los errores antes de pasar a producción. En `eCF` se activará más adelante; te avisaremos antes. Si tus documentos pasan en `TesteCF` sin `validate=false`, ya están listos.
+<Callout type="info" title="La validación estricta es el modo por defecto en todos los entornos">
+  No necesitas enviar `validate=true`: sin el parámetro, la validación ya es estricta en `TesteCF`, `CerteCF` y `eCF`. Usa `validate=false` solo si necesitas que un documento con errores se envíe igual a la DGII (la DGII puede rechazarlo). Si tus documentos pasan en `TesteCF`, ya están listos para producción.
 </Callout>
 
 <Callout type="warn" title="validate=true no es un envío de prueba">
@@ -272,12 +272,50 @@ La validación estricta revisa:
 - **Cálculos y totales** según las especificaciones de la DGII
 - **Campos requeridos** y sus valores permitidos
 - **Estructura** del documento según los esquemas XSD oficiales
+- **RNC del comprador**: `RNCComprador` solo con dígitos (9 u 11), sin guiones ni espacios. La DGII rechaza otro formato con el código 1383
 
 Así evitas que un documento con errores llegue a la DGII y que se pierda ese e-NCF.
 
 **Respuesta cuando el documento es válido:**
 
 Es la misma [respuesta exitosa](#respuesta-exitosa) de un envío normal, porque el documento ya se envió a la DGII. Guarda el `internalTrackId` y [consulta el estado](/docs/integration/document-queries); no lo envíes otra vez.
+
+### Advertencias en la respuesta exitosa
+
+Si el documento se aceptó pero tiene algo que debes corregir, la respuesta exitosa incluye un arreglo `warnings`. Si no hay advertencias, el campo no aparece.
+
+```json
+{
+  "rnc": "102320705",
+  "ecf": "E320000000123",
+  "internalTrackId": "58f1bdd7-f4be-4a2e-a1e6-570c95b8d477",
+  "securityCode": "fWCZCV",
+  "qr_url": "https://ecf.dgii.gov.do/ecf/consultatimbrefc?...",
+  "signedDate": "14-05-2025 02:57:33",
+  "warnings": [
+    {
+      "code": "NUMERO_LINEA_REQUIRED_WARNING",
+      "field": "ECF.DetallesItems.Item[0].NumeroLinea",
+      "message": "NumeroLinea es requerido. DGII acepta la factura de consumo menor a DOP$250,000 porque solo recibe el resumen (RFCE), pero el documento completo debe incluir el detalle de los ítems para cumplimiento"
+    }
+  ]
+}
+```
+
+| Campo               | Descripción                                                        |
+| ------------------- | ------------------------------------------------------------------ |
+| warnings[].code     | Código de la advertencia (ej: `NUMERO_LINEA_REQUIRED_WARNING`)     |
+| warnings[].field    | Ruta al campo (ej: `ECF.DetallesItems.Item[0].NumeroLinea`)         |
+| warnings[].message  | Qué corregir y por qué                                             |
+
+<Callout type="warn" title="Factura de Consumo (e-CF 32) menor a RD$ 250,000: los ítems también se validan">
+  Para estas facturas la DGII solo recibe el [resumen](#resumen-de-factura-de-consumo), por eso acepta el documento aunque los ítems estén incompletos. Pero MSeller guarda el documento completo por 10 años para cumplimiento, así que debe incluir el detalle correcto de los ítems (`NumeroLinea`, `IndicadorFacturacion`, `CantidadItem` con hasta 2 decimales, etc.).
+
+  - En `TesteCF`, un problema en los ítems es un **error**: responde `400 ECF_VALIDATION_FAILED`, para que lo corrijas antes de pasar a producción.
+  - En `CerteCF` y `eCF`, el documento se acepta y se envía, y el problema llega como advertencia en `warnings`, con el mismo código del error más `_WARNING` (ej: `NUMERO_LINEA_REQUIRED` → `NUMERO_LINEA_REQUIRED_WARNING`, `DETALLES_ITEMS_MISSING_WARNING` si falta `DetallesItems`).
+
+  Desde RD$ 250,000, y en los demás tipos de e-CF, los problemas en los ítems siempre son errores, porque la DGII recibe el documento completo.
+</Callout>
 
 **Respuesta de validación con errores:**
 
@@ -328,7 +366,7 @@ Si se encuentran errores, recibirás un detalle de los problemas encontrados:
 | validationErrors[].details | Objeto con información adicional del error (valores esperados, recibidos, etc.) |
 | validationErrors[].name    | Nombre del tipo de error (`EcfValidationError`)                                 |
 
-> **💡 Recomendación**: En producción (`eCF`), envía `validate=true` desde ya para que los documentos con errores se rechacen antes de llegar a la DGII. En `TesteCF` y `CerteCF` no hace falta: la validación estricta ya es el modo por defecto. Recuerda que un documento válido **sí se envía**.
+> **💡 Recomendación**: No envíes `validate=false` en producción: con la validación estricta por defecto, un documento con errores se rechaza antes de llegar a la DGII y no pierdes ese e-NCF. Revisa también el arreglo `warnings` de las respuestas exitosas y corrige lo que indique. Recuerda que un documento válido **sí se envía**.
 
 ### Ejemplo de envío con validación estricta
 
@@ -946,6 +984,8 @@ print_r($resultado);
 }
 ````
 
+Si el documento tiene algo que corregir, la respuesta también incluye un arreglo `warnings` ([ver advertencias](#advertencias-en-la-respuesta-exitosa)).
+
 ## Factura de Consumo Electrónica (e-CF 32)
 
 La Factura de Consumo Electrónica (e-CF 32) es el comprobante fiscal electrónico que acredita la transferencia de bienes, la entrega en uso o la prestación de servicios a **consumidores finales**. A diferencia de la Factura de Crédito Fiscal (e-CF 31), la Factura de Consumo **no otorga** al comprador el derecho a crédito fiscal para el ITBIS, ni puede ser utilizada para sustentar costos y gastos deducibles del Impuesto Sobre la Renta (ISR).
@@ -1075,7 +1115,7 @@ La DGII establece dos modalidades de envío para las Facturas de Consumo Electr�
 | **Documento Extendido** | Encabezado completo + todos los renglones de detalle de ítems | Cuando `MontoTotal` ≥ RD$ 250,000 |
 | **Resumen de Factura**  | Solo totales y número de comprobante (e-NCF)                  | Cuando `MontoTotal` < RD$ 250,000 |
 
-> **💡 Simplificación para el desarrollador**: No necesitas implementar lógica para decidir cuándo enviar el documento extendido o el resumen. Siempre envía el documento completo con todos los detalles — MSeller evalúa el `MontoTotal` y decide automáticamente la modalidad correcta de envío a la DGII.
+> **💡 Simplificación para el desarrollador**: No necesitas implementar lógica para decidir cuándo enviar el documento extendido o el resumen. Siempre envía el documento completo con todos los detalles — MSeller evalúa el `MontoTotal` y decide automáticamente la modalidad correcta de envío a la DGII. Aunque la DGII no reciba los ítems, MSeller los valida: en `TesteCF` un ítem incompleto es un error, y en `CerteCF` y `eCF` llega como advertencia ([ver advertencias](#advertencias-en-la-respuesta-exitosa)).
 
 #### Código de seguridad en el Resumen
 
@@ -1135,7 +1175,7 @@ Es importante entender que MSeller ECF utiliza un procesamiento asíncrono para 
 
 ## Buenas prácticas
 
-1. **Validación estricta con `validate=true`**: Úsalo para que los documentos con errores se rechacen antes de llegar a la DGII y no pierdas esos e-NCF. Un documento válido **sí se envía** a la DGII.
+1. **Validación estricta**: Está activa por defecto; no envíes `validate=false`, así los documentos con errores se rechazan antes de llegar a la DGII y no pierdes esos e-NCF. Un documento válido **sí se envía** a la DGII. Revisa el arreglo `warnings` de las respuestas exitosas.
 2. **Manejo de errores**: Implementa un sistema robusto para manejar los diferentes tipos de errores retornados tanto por la validación como por la DGII.
 3. **Reintentos**: Implementa una estrategia de reintentos para casos de fallos temporales, pero evita reintentar documentos con errores de validación.
 4. **Almacenamiento local**: Mantén una copia local de los documentos enviados para referencia futura.
